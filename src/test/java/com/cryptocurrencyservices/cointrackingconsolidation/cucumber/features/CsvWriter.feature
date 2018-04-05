@@ -1,4 +1,4 @@
-@ALL_TESTS @CSV_WRITER @WIP
+@ALL_TESTS @CSV_WRITER
 Feature: CSV Writer
 
 

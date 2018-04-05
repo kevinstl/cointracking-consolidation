@@ -1,15 +1,23 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.factory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.supercsv.io.CsvBeanReader;
+import org.supercsv.prefs.CsvPreference;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 @Component
 public class CsvReaderFactory {
 
-    @Autowired
-    private FileReaderFactory fileReaderFactory;
 
-//    public CSVReader build(String csfFileName) {
-//        return new CSVReader(fileReaderFactory.build(csfFileName));
-//    }
+    public CsvBeanReader build(String csvFileName) {
+        CsvBeanReader csvBeanReader = null;
+        try {
+            csvBeanReader = new CsvBeanReader(new FileReader(csvFileName), CsvPreference.STANDARD_PREFERENCE);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return csvBeanReader;
+    }
 }
