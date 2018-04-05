@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.supercsv.io.CsvBeanReader;
-import org.supercsv.prefs.CsvPreference;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,10 +13,10 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
-public class CsvReaderFactoryTest {
+public class CsvBeanReaderFactoryTest {
 
     @InjectMocks
-    private CsvReaderFactory csvReaderFactory;
+    private CsvBeanReaderFactory csvBeanReaderFactory;
 
     private String csvFileName = "/tmp/csvFileName";
 
@@ -29,7 +28,7 @@ public class CsvReaderFactoryTest {
         try{
             file.createNewFile();
 
-            CsvBeanReader csvBeanReader = csvReaderFactory.build(csvFileName);
+            CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(csvFileName);
 
             assertNotNull(csvBeanReader);
         }

@@ -1,6 +1,6 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.cucumber.stepdefs;
 
-import com.cryptocurrencyservices.cointrackingconsolidation.service.PoloniexConsolidatorService;
+import com.cryptocurrencyservices.cointrackingconsolidation.service.ConsolidatorService;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -11,12 +11,12 @@ import static junit.framework.TestCase.assertNotNull;
 public class PoloniexConsolidatorStepDefs extends StepDefs {
 
     @Autowired
-    private PoloniexConsolidatorService poloniexConsolidatorService;
+    private ConsolidatorService consolidatorService;
 
     @Given("^I have access to the Poloniex Consolidator Service$")
     public void i_have_access_to_the_Poloniex_Consolidator_Service() throws Throwable {
 
-        assertNotNull(poloniexConsolidatorService);
+        assertNotNull(consolidatorService);
     }
 
     @When("^I use the Poloniex Consolidator Service to consoliate$")

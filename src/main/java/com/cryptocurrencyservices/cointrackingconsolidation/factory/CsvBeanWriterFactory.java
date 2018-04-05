@@ -10,22 +10,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @Component
-public class ICsvBeanWriterFactory {
+public class CsvBeanWriterFactory {
 
-    public ICsvBeanWriter build(String destinationCsvFileName) {
+    public CsvBeanWriter build(String destinationCsvFileName) {
 
         CsvPreference ALWAYS_QUOTE =
                 new CsvPreference.Builder(CsvPreference.STANDARD_PREFERENCE).useQuoteMode(new AlwaysQuoteMode()).build();
 
-        ICsvBeanWriter iCsvBeanWriter = null;
+        CsvBeanWriter csvBeanWriter = null;
         try {
-            iCsvBeanWriter = new CsvBeanWriter(new FileWriter(destinationCsvFileName),
+            csvBeanWriter = new CsvBeanWriter(new FileWriter(destinationCsvFileName),
                     ALWAYS_QUOTE);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return iCsvBeanWriter;
+        return csvBeanWriter;
     }
 
 }

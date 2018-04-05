@@ -2,13 +2,13 @@ package com.cryptocurrencyservices.cointrackingconsolidation.service;
 
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.CointrackingTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvHeaderFactory;
-import com.cryptocurrencyservices.cointrackingconsolidation.factory.ICsvBeanWriterFactory;
+import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvBeanWriterFactory;
 import com.cryptocurrencyservices.cointrackingconsolidation.junit.extension.mockito.MockitoExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.supercsv.io.ICsvBeanWriter;
+import org.supercsv.io.CsvBeanWriter;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -23,10 +23,10 @@ public class CsvWriterServiceTest {
     private CsvWriterService classUnderTest;
 
     @Mock
-    private ICsvBeanWriterFactory iCsvBeanWriterFactory;
+    private CsvBeanWriterFactory csvBeanWriterFactory;
 
     @Mock
-    private ICsvBeanWriter ICsvBeanWriter;
+    private CsvBeanWriter csvBeanWriter;
 
     @Mock
     private CointrackingTransaction cointrackingTransaction;
@@ -47,15 +47,15 @@ public class CsvWriterServiceTest {
 
         Class<? extends CointrackingTransaction> aClass = cointrackingTransaction.getClass();
 
-        when(iCsvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(ICsvBeanWriter);
+        when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
         when(csvHeaderFactory.build(aClass)).thenReturn(header);
 
 
         classUnderTest.toCsvString(aClass, cointrackingTransaction, destinationCsvFileName);
 
 
-        verify(iCsvBeanWriterFactory).build(destinationCsvFileName);
-        verify(ICsvBeanWriter).writeHeader(header);
-        verify(ICsvBeanWriter).write(cointrackingTransaction, header);
+        verify(csvBeanWriterFactory).build(destinationCsvFileName);
+        verify(csvBeanWriter).writeHeader(header);
+        verify(csvBeanWriter).write(cointrackingTransaction, header);
     }
 }

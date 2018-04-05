@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 
 @Component
-public class CsvReaderFactory {
+public class CsvBeanReaderFactory {
 
 
     public CsvBeanReader build(String csvFileName) {

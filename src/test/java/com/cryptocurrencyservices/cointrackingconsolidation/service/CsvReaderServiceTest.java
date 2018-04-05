@@ -2,7 +2,7 @@ package com.cryptocurrencyservices.cointrackingconsolidation.service;
 
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.PoloniexTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvHeaderFactory;
-import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvReaderFactory;
+import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvBeanReaderFactory;
 import com.cryptocurrencyservices.cointrackingconsolidation.junit.extension.mockito.MockitoExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class CsvReaderServiceTest {
     private CsvReaderService classUnderTest;
 
     @Mock
-    private CsvReaderFactory csvReaderFactory;
+    private CsvBeanReaderFactory csvBeanReaderFactory;
 
     private String csvFileName;
 
@@ -51,7 +51,7 @@ public class CsvReaderServiceTest {
 
     @Test
     public void process_readsCsv() throws IOException {
-        when(csvReaderFactory.build(csvFileName)).thenReturn(csvBeanReader);
+        when(csvBeanReaderFactory.build(csvFileName)).thenReturn(csvBeanReader);
         when(csvBeanReader.read(PoloniexTransaction.class, header)).thenReturn(expectedPoloniexTransaction);
         when(csvHeaderFactory.build(PoloniexTransaction.class)).thenReturn(header);
 
@@ -61,7 +61,7 @@ public class CsvReaderServiceTest {
 
         assertNotNull(poloniexTransaction);
         assertEquals(expectedPoloniexTransaction, poloniexTransaction);
-        verify(csvReaderFactory).build(csvFileName);
+        verify(csvBeanReaderFactory).build(csvFileName);
         verify(csvHeaderFactory).build(any(Class.class));
         verify(csvBeanReader).read(PoloniexTransaction.class, header);
     }
