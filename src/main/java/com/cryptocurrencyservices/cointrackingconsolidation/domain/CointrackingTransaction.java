@@ -1,9 +1,5 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.domain;
 
-import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvBindByPosition;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-
 public class CointrackingTransaction {
 
     private String type;

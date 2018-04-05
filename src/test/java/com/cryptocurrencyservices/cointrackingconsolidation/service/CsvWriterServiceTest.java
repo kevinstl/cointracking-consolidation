@@ -1,15 +1,14 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.service;
 
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.CointrackingTransaction;
-import com.cryptocurrencyservices.cointrackingconsolidation.factory.StatefulBeanToCsvFactory;
+import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvHeaderFactory;
+import com.cryptocurrencyservices.cointrackingconsolidation.factory.ICsvBeanWriterFactory;
 import com.cryptocurrencyservices.cointrackingconsolidation.junit.extension.mockito.MockitoExtension;
-import com.opencsv.bean.StatefulBeanToCsv;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.supercsv.io.ICsvBeanWriter;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -24,10 +23,10 @@ public class CsvWriterServiceTest {
     private CsvWriterService classUnderTest;
 
     @Mock
-    private StatefulBeanToCsvFactory statefulBeanToCsvFactory;
+    private ICsvBeanWriterFactory iCsvBeanWriterFactory;
 
     @Mock
-    private StatefulBeanToCsv statefulBeanToCsv;
+    private ICsvBeanWriter ICsvBeanWriter;
 
     @Mock
     private CointrackingTransaction cointrackingTransaction;
@@ -35,20 +34,28 @@ public class CsvWriterServiceTest {
     @Mock
     private Writer writer;
 
+    @Mock
+    private CsvHeaderFactory csvHeaderFactory;
+
     private String destinationCsvFileName = "destinationCsvFileName";
+
+    private String[] header;
 
 
     @Test
-    public void toCsvString_returnsCsvString() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
+    public void toCsvString_returnsCsvString() throws IOException {
 
-        when(statefulBeanToCsvFactory.build(writer)).thenReturn(statefulBeanToCsv);
+        Class<? extends CointrackingTransaction> aClass = cointrackingTransaction.getClass();
+
+        when(iCsvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(ICsvBeanWriter);
+        when(csvHeaderFactory.build(aClass)).thenReturn(header);
 
 
-//        classUnderTest.toCsvString(cointrackingTransaction, destinationCsvFileName);
-        classUnderTest.toCsvString(new CointrackingTransaction(), destinationCsvFileName);
+        classUnderTest.toCsvString(aClass, cointrackingTransaction, destinationCsvFileName);
 
 
-        verify(statefulBeanToCsvFactory).build(writer);
-        verify(statefulBeanToCsv).write(cointrackingTransaction);
+        verify(iCsvBeanWriterFactory).build(destinationCsvFileName);
+        verify(ICsvBeanWriter).writeHeader(header);
+        verify(ICsvBeanWriter).write(cointrackingTransaction, header);
     }
 }

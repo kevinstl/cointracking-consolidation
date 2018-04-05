@@ -2,7 +2,6 @@ package com.cryptocurrencyservices.cointrackingconsolidation.cucumber.stepdefs;
 
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.CointrackingTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.service.CsvWriterService;
-import com.cryptocurrencyservices.cointrackingconsolidation.service.PoloniexConsolidatorService;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -50,7 +49,7 @@ public class CsvWriterStepDefs extends StepDefs {
 
     @When("^I use the CSV Writer Service to save the cointracking transaction bean as a CSV record$")
     public void i_use_the_CSV_Writer_Service_to_save_the_transaction_record_as_a_CSV_record() throws Throwable {
-        csvWriterService.toCsvString(cointrackingTransaction, destinatinCsvFileName);
+        csvWriterService.toCsvString(cointrackingTransaction.getClass(), cointrackingTransaction, destinatinCsvFileName);
     }
 
     @Then("^I see the cointracking transaction bean contents are written to a csv file$")
