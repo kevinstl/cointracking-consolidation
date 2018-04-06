@@ -13,6 +13,9 @@ import java.math.RoundingMode;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class PoloniexToCointrackingMarshallerTest {
@@ -47,8 +50,14 @@ public class PoloniexToCointrackingMarshallerTest {
         assertEquals(OMNI, cointrackingTransaction.getBuycur());
         assertNotNull(cointrackingTransaction.getSellcur());
         assertEquals(BTC, cointrackingTransaction.getSellcur());
+
         assertNotNull(cointrackingTransaction.getBuyamount());
-        assertEquals(poloniexTransaction.getAmount(), cointrackingTransaction.getBuyamount());
+        assertThat(cointrackingTransaction.getBuyamount(), not(containsString("-")));
+        assertEquals(poloniexTransaction.getQuoteTotalLessFee().replace("-", ""), cointrackingTransaction.getBuyamount());
+
+        assertNotNull(cointrackingTransaction.getSellamount());
+        assertThat(cointrackingTransaction.getSellamount(), not(containsString("-")));
+        assertEquals(poloniexTransaction.getBaseTotalLessFee().replace("-", ""), cointrackingTransaction.getSellamount());
 
         assertNotNull(cointrackingTransaction.getFeeamount());
         assertEquals(buyFee.toString(), cointrackingTransaction.getFeeamount());
@@ -70,8 +79,14 @@ public class PoloniexToCointrackingMarshallerTest {
         assertEquals(BTC, cointrackingTransaction.getBuycur());
         assertNotNull(cointrackingTransaction.getSellcur());
         assertEquals(OMNI, cointrackingTransaction.getSellcur());
+
+        assertNotNull(cointrackingTransaction.getBuyamount());
+        assertThat(cointrackingTransaction.getBuyamount(), not(containsString("-")));
+        assertEquals(poloniexTransaction.getBaseTotalLessFee().replace("-", ""), cointrackingTransaction.getBuyamount());
+
         assertNotNull(cointrackingTransaction.getSellamount());
-        assertEquals(poloniexTransaction.getAmount(), cointrackingTransaction.getSellamount());
+        assertThat(cointrackingTransaction.getSellamount(), not(containsString("-")));
+        assertEquals(poloniexTransaction.getQuoteTotalLessFee().replace("-", ""), cointrackingTransaction.getSellamount());
 
         assertNotNull(cointrackingTransaction.getFeeamount());
         assertEquals(sellFee.toString(), cointrackingTransaction.getFeeamount());
@@ -90,10 +105,10 @@ public class PoloniexToCointrackingMarshallerTest {
         BigDecimal total = new BigDecimal(0.02906305).setScale(8, RoundingMode.HALF_EVEN);
         poloniexTransaction.setTotal(total.toString());
         poloniexTransaction.setFee("0.24%");
-        BigDecimal quoteTotalLessFee = new BigDecimal(1.06202575).setScale(8, RoundingMode.HALF_EVEN);
-        poloniexTransaction.setQuoteTotalLessFee(quoteTotalLessFee.toString());
         BigDecimal baseTotalLessFee = new BigDecimal(-0.02906305).setScale(8, RoundingMode.HALF_EVEN);
         poloniexTransaction.setBaseTotalLessFee(baseTotalLessFee.toString());
+        BigDecimal quoteTotalLessFee = new BigDecimal(1.06202575).setScale(8, RoundingMode.HALF_EVEN);
+        poloniexTransaction.setQuoteTotalLessFee(quoteTotalLessFee.toString());
         buyFee = amount.subtract(quoteTotalLessFee);
         poloniexTransaction.setDate("2017-05-31 23:57:24");
     }
@@ -126,6 +141,9 @@ public class PoloniexToCointrackingMarshallerTest {
 
         assertNotNull(cointrackingTransaction.getTradedate());
         assertEquals(poloniexTransaction.getDate(), cointrackingTransaction.getTradedate());
+
+        assertNotNull(cointrackingTransaction.getGroup());
+        assertNotNull(cointrackingTransaction.getComment());
     }
 
 }

@@ -17,16 +17,19 @@ public class PoloniexToCointrackingMarshaller {
     public static final String BUY = "Buy";
     public static final String SELL = "Sell";
 
+    private RoundingMode roundingMode = RoundingMode.HALF_EVEN;
+
     public CointrackingTransaction marshall(PoloniexTransaction poloniexTransaction) {
         CointrackingTransaction cointrackingTransaction = new CointrackingTransaction();
 
-        cointrackingTransaction.setBuyamount(poloniexTransaction.getAmount());
+
+
         String tradeCurrency = poloniexTransaction.getMarket()
                 .substring(0, poloniexTransaction.getMarket().indexOf("/"));
         String baseCurrency = poloniexTransaction.getMarket()
                 .substring(poloniexTransaction.getMarket().indexOf("/") + 1);
 
-        cointrackingTransaction.setSellamount(poloniexTransaction.getAmount());
+
 
         cointrackingTransaction.setExchange(POLONIEX);
 
@@ -34,12 +37,18 @@ public class PoloniexToCointrackingMarshaller {
 
         cointrackingTransaction.setTradedate(poloniexTransaction.getDate());
 
+        cointrackingTransaction.setGroup("");
+        cointrackingTransaction.setComment("");
+
         if(StringUtils.equals(BUY, poloniexTransaction.getType())){
+            BigDecimal amount = new BigDecimal(poloniexTransaction.getAmount()).setScale(8, roundingMode);
+            BigDecimal quoteTotalLessFee = new BigDecimal(poloniexTransaction.getQuoteTotalLessFee()).setScale(8, roundingMode);
+
+            cointrackingTransaction.setBuyamount(poloniexTransaction.getQuoteTotalLessFee().replace("-", ""));
+            cointrackingTransaction.setSellamount(poloniexTransaction.getBaseTotalLessFee().replace("-", ""));
+
             cointrackingTransaction.setBuycur(tradeCurrency);
             cointrackingTransaction.setSellcur(baseCurrency);
-
-            BigDecimal amount = new BigDecimal(poloniexTransaction.getAmount()).setScale(8, RoundingMode.HALF_EVEN);
-            BigDecimal quoteTotalLessFee = new BigDecimal(poloniexTransaction.getQuoteTotalLessFee()).setScale(8, RoundingMode.HALF_EVEN);
 
             BigDecimal buyFee = amount.subtract(quoteTotalLessFee);
             cointrackingTransaction.setFeeamount(buyFee.toString());
@@ -48,11 +57,15 @@ public class PoloniexToCointrackingMarshaller {
 
         }
         else if(StringUtils.equals(SELL, poloniexTransaction.getType())){
+            BigDecimal total = new BigDecimal(poloniexTransaction.getTotal()).setScale(8, roundingMode);
+            BigDecimal baseTotalLessFee = new BigDecimal(poloniexTransaction.getBaseTotalLessFee()).setScale(8, roundingMode);
+
+            cointrackingTransaction.setBuyamount(poloniexTransaction.getBaseTotalLessFee().replace("-", ""));
+            cointrackingTransaction.setSellamount(poloniexTransaction.getQuoteTotalLessFee().replace("-", ""));
+
             cointrackingTransaction.setBuycur(baseCurrency);
             cointrackingTransaction.setSellcur(tradeCurrency);
 
-            BigDecimal total = new BigDecimal(poloniexTransaction.getTotal()).setScale(8, RoundingMode.HALF_EVEN);
-            BigDecimal baseTotalLessFee = new BigDecimal(poloniexTransaction.getBaseTotalLessFee()).setScale(8, RoundingMode.HALF_EVEN);
 
             BigDecimal sellFee = total.subtract(baseTotalLessFee);
             cointrackingTransaction.setFeeamount(sellFee.toString());
