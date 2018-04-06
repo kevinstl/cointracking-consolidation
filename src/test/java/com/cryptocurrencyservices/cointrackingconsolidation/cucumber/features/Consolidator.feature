@@ -1,5 +1,5 @@
-@ALL_TESTS
-Feature: Poloniex Consolidator
+@ALL_TESTS @CONSOLIDATOR @WIP
+Feature: Consolidator
 
 
     Scenario: Consolidate poloniex transactions into common contracking.info csv format

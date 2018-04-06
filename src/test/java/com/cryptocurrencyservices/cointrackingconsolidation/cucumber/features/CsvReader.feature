@@ -1,4 +1,4 @@
-@ALL_TESTS @CSV_READER @WIP
+@ALL_TESTS @CSV_READER
 Feature: CSV Reader
 
 

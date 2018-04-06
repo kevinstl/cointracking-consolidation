@@ -1,5 +1,7 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.cucumber.stepdefs;
 
+import com.cryptocurrencyservices.cointrackingconsolidation.domain.CointrackingTransaction;
+import com.cryptocurrencyservices.cointrackingconsolidation.domain.PoloniexTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.service.ConsolidatorService;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -8,23 +10,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static junit.framework.TestCase.assertNotNull;
 
-public class PoloniexConsolidatorStepDefs extends StepDefs {
+public class ConsolidatorStepDefs extends StepDefs {
 
     @Autowired
     private ConsolidatorService consolidatorService;
+
+    String sourceCsvFileName = null;
+    private String destinatinCsvFileName = null;
+
+    private CointrackingTransaction cointrackingTransaction = new CointrackingTransaction();
 
     @Given("^I have access to the Poloniex Consolidator Service$")
     public void i_have_access_to_the_Poloniex_Consolidator_Service() throws Throwable {
 
         assertNotNull(consolidatorService);
+
+        sourceCsvFileName = System.getenv("SOURCE_POLONIEX_CSV_FILE_NAME");
+        destinatinCsvFileName = System.getenv("DESTINATION_CSV_FILE_NAME");
+
+        cointrackingTransaction.setType("Buy");
     }
 
     @When("^I use the Poloniex Consolidator Service to consoliate$")
     public void i_use_the_Poloniex_Consolidator_Service_to_consoliate() throws Throwable {
 
-        String line = "2017-05-31 23:57:24,OMNI/BTC,Exchange,Buy,0.02730000,1.06458074,0.02906305,0.24%,20515343179,-0.02906305,1.06202575";
-
-//        poloniexConsolidatorService.consolidate(line, );
+        consolidatorService.consolidate(
+                sourceCsvFileName,
+                PoloniexTransaction.class,
+                destinatinCsvFileName,
+//                cointrackingTransaction.getClass()
+                CointrackingTransaction.class
+        );
     }
 
     @Then("^I see the poloniex transactions consolidated into a csv file$")

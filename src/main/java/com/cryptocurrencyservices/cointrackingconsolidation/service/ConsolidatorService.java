@@ -34,7 +34,7 @@ public class ConsolidatorService {
 
         CsvBeanWriter csvBeanWriter = csvBeanWriterFactory.build(destinationCsvFileName);
         final String[] destinatinHeader = csvHeaderFactory.build(destinationClassType);
-        csvBeanWriter.write(destinatinHeader);
+        csvBeanWriter.writeHeader(destinatinHeader);
 
         SourceT sourceRecordObject = null;
         while( (sourceRecordObject = csvBeanReader.read(sourceClassType, sourceHeader) ) != null){
@@ -42,6 +42,9 @@ public class ConsolidatorService {
             DestinationT destinationRecordObject = destinationClassType.getDeclaredConstructor().newInstance();
             csvBeanWriter.write(destinationRecordObject);
         }
+
+        csvBeanReader.close();
+        csvBeanWriter.close();
 
     }
 }
