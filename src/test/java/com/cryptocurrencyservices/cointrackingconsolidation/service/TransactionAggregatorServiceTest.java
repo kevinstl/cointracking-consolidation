@@ -13,10 +13,12 @@ import java.util.Map;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 public class TransactionAggregatorServiceTest {
 
+    public static final String CUR_1 = "cur1";
     @InjectMocks
     private TransactionAggregatorService transactionAggregatorService;
 
@@ -27,15 +29,19 @@ public class TransactionAggregatorServiceTest {
     public void setup(){
         cointrackingTransaction1 = new CointrackingTransaction();
         cointrackingTransaction1.setBuyamount("1");
+        cointrackingTransaction1.setBuycur(CUR_1);
         cointrackingTransaction2 = new CointrackingTransaction();
         cointrackingTransaction2.setBuyamount("1");
+        cointrackingTransaction2.setBuycur("cur1");
     }
 
     @Test
     public void aggregate_returnsPassedInTransaction(){
-                transactionAggregatorService.aggregate(cointrackingTransaction1);
 
         transactionAggregatorService.init();
+
+        transactionAggregatorService.aggregate(cointrackingTransaction1);
+
 
         Map<String, CointrackingTransaction> aggregatedCointrackingTransactions =
                 transactionAggregatorService.getaggregatedCointrackingTransactions();
@@ -55,11 +61,12 @@ public class TransactionAggregatorServiceTest {
                 transactionAggregatorService.getaggregatedCointrackingTransactions();
 
         assertNotNull(aggregatedCointrackingTransactions);
-        assertEquals("2", aggregatedCointrackingTransactions.get("1").getBuyamount());
+        assertEquals("2", aggregatedCointrackingTransactions.get(CUR_1).getBuyamount());
     }
 
     @Test
     public void init_createsEmptyAggregatedCointrackingTransactions(){
+        transactionAggregatorService.init();
 
         transactionAggregatorService.aggregate(cointrackingTransaction1);
         transactionAggregatorService.aggregate(cointrackingTransaction2);
@@ -70,7 +77,21 @@ public class TransactionAggregatorServiceTest {
                 transactionAggregatorService.getaggregatedCointrackingTransactions();
 
         assertTrue(aggregatedCointrackingTransactions.isEmpty());
+    }
 
+    @Test
+    public void aggregate_groupsByBuyCur(){
 
+        transactionAggregatorService.init();
+
+        transactionAggregatorService.aggregate(cointrackingTransaction1);
+        transactionAggregatorService.aggregate(cointrackingTransaction2);
+
+        Map<String, CointrackingTransaction> aggregatedCointrackingTransactions =
+                transactionAggregatorService.getaggregatedCointrackingTransactions();
+
+        assertNotNull(aggregatedCointrackingTransactions);
+        assertEquals("2", aggregatedCointrackingTransactions.get(CUR_1).getBuyamount());
+        assertTrue(aggregatedCointrackingTransactions.containsKey(CUR_1));
     }
 }
