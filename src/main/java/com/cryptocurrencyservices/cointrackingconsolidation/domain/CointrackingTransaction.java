@@ -3,6 +3,26 @@ package com.cryptocurrencyservices.cointrackingconsolidation.domain;
 
 public class CointrackingTransaction {
 
+    public CointrackingTransaction(){
+
+    }
+
+    public CointrackingTransaction(CointrackingTransaction cointrackingTransaction){
+        this.type = cointrackingTransaction.type;
+        this.buyamount = cointrackingTransaction.buyamount;
+        this.buycur = cointrackingTransaction.buycur;
+        this.sellamount = cointrackingTransaction.sellamount;
+        this.sellcur = cointrackingTransaction.sellcur;
+        this.feeamount = cointrackingTransaction.feeamount;
+        this.feecur = cointrackingTransaction.feecur;
+        this.exchange = cointrackingTransaction.exchange;
+        this.group = cointrackingTransaction.group;
+        this.comment = cointrackingTransaction.comment;
+        this.tradedate = cointrackingTransaction.tradedate;
+    }
+
+
+
     private String type;
     private String buyamount;
     private String buycur;

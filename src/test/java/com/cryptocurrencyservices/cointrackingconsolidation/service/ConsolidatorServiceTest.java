@@ -16,7 +16,9 @@ import org.supercsv.io.CsvBeanWriter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -127,5 +129,38 @@ public class ConsolidatorServiceTest {
         verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction2);
 
     }
+
+    @Test
+    public void consolidateToList_consolidatesToList() throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+
+        when(csvHeaderFactory.build(sourceClassType)).thenReturn(poloniexHeader);
+        when(csvBeanReaderFactory.build(sourcePolonexFileName)).thenReturn(csvBeanReader);
+        when(csvBeanReader.read(sourceClassType, poloniexHeader)).thenReturn(poloniexHeaderRecord, poloniexTransaction1, poloniexTransaction2, null);
+
+
+        when(poloniexToCointrackingMarshaller.marshall(poloniexTransaction1)).thenReturn(cointrackingTransaction1);
+        when(poloniexToCointrackingMarshaller.marshall(poloniexTransaction2)).thenReturn(cointrackingTransaction2);
+
+
+        List<CointrackingTransaction> cointrackingTransactions =
+                classUnderTest.consolidateToList(sourcePolonexFileName, destinationCsvFileName);
+
+
+        assertNotNull(cointrackingTransactions);
+        assertEquals(cointrackingTransaction1, cointrackingTransactions.get(0));
+        assertEquals(cointrackingTransaction2, cointrackingTransactions.get(1));
+
+        verify(csvBeanReaderFactory).build(sourcePolonexFileName);
+        verify(csvHeaderFactory).build(sourceClassType);
+
+        verify(csvBeanReader, times(4)).read(sourceClassType, poloniexHeader);
+
+
+        verify(poloniexToCointrackingMarshaller, times(0)).marshall(poloniexHeaderRecord);
+        verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction1);
+        verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction2);
+
+    }
+
 
 }

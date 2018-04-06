@@ -13,6 +13,8 @@ import org.supercsv.io.CsvBeanWriter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class ConsolidatorService {
@@ -76,5 +78,26 @@ public class ConsolidatorService {
 
         csvBeanReader.close();
         csvBeanWriter.close();
+    }
+
+    public List<CointrackingTransaction> consolidateToList(String sourcePolonexFileName, String destinationCsvFileName) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourcePolonexFileName);
+        final String[] sourceHeader = csvHeaderFactory.build(PoloniexTransaction.class);
+
+        PoloniexTransaction sourceRecordObject = null;
+
+        ArrayList<CointrackingTransaction> cointrackingTransactions = new ArrayList<>();
+
+        int row = 0;
+        while((sourceRecordObject = csvBeanReader.read(PoloniexTransaction.class, sourceHeader) ) != null){
+            System.out.println(sourceRecordObject);
+            if(row > 0){
+                cointrackingTransactions.add(poloniexToCointrackingMarshaller.marshall(sourceRecordObject));
+            }
+            row ++;
+        }
+
+        csvBeanReader.close();
+        return cointrackingTransactions;
     }
 }
