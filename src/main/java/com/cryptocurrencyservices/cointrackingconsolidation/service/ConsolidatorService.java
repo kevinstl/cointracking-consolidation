@@ -5,6 +5,7 @@ import com.cryptocurrencyservices.cointrackingconsolidation.domain.PoloniexTrans
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvHeaderFactory;
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvBeanReaderFactory;
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvBeanWriterFactory;
+import com.cryptocurrencyservices.cointrackingconsolidation.marshall.PoloniexToCointrackingMarshaller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.supercsv.io.CsvBeanReader;
@@ -25,10 +26,13 @@ public class ConsolidatorService {
     @Autowired
     private CsvHeaderFactory csvHeaderFactory;
 
+    @Autowired
+    private PoloniexToCointrackingMarshaller poloniexToCointrackingMarshaller;
+
     public <SourceT, DestinationT> void consolidate(String sourcePolonexFileName,
-                                                    Class<SourceT> sourceClassType,
-                                                    String destinationCsvFileName,
-                                                    Class<DestinationT> destinationClassType) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+                                                     Class<SourceT> sourceClassType,
+                                                     String destinationCsvFileName,
+                                                     Class<DestinationT> destinationClassType) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourcePolonexFileName);
         final String[] sourceHeader = csvHeaderFactory.build(sourceClassType);
 
@@ -40,11 +44,37 @@ public class ConsolidatorService {
         while( (sourceRecordObject = csvBeanReader.read(sourceClassType, sourceHeader) ) != null){
             System.out.println(sourceRecordObject);
             DestinationT destinationRecordObject = destinationClassType.getDeclaredConstructor().newInstance();
+//            DestinationT destinationRecordObject = sourceRecordObject.marshall();
             csvBeanWriter.write(destinationRecordObject);
         }
 
         csvBeanReader.close();
         csvBeanWriter.close();
 
+    }
+
+    public void consolidatePoloniex(String sourcePolonexFileName, String destinationCsvFileName) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourcePolonexFileName);
+        final String[] sourceHeader = csvHeaderFactory.build(PoloniexTransaction.class);
+//        final String[] sourceHeader = csvBeanReader.getHeader(true);
+
+        CsvBeanWriter csvBeanWriter = csvBeanWriterFactory.build(destinationCsvFileName);
+        final String[] destinatinHeader = csvHeaderFactory.build(CointrackingTransaction.class);
+        csvBeanWriter.writeHeader(destinatinHeader);
+
+        PoloniexTransaction sourceRecordObject = null;
+
+        int row = 0;
+        while((sourceRecordObject = csvBeanReader.read(PoloniexTransaction.class, sourceHeader) ) != null){
+            System.out.println(sourceRecordObject);
+            if(row > 0){
+                CointrackingTransaction destinationRecordObject = poloniexToCointrackingMarshaller.marshall(sourceRecordObject);
+                csvBeanWriter.write(destinationRecordObject, destinatinHeader);
+            }
+            row ++;
+        }
+
+        csvBeanReader.close();
+        csvBeanWriter.close();
     }
 }

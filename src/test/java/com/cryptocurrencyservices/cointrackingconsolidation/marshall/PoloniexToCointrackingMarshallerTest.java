@@ -1,4 +1,4 @@
-package com.cryptocurrencyservices.cointrackingconsolidation.factory;
+package com.cryptocurrencyservices.cointrackingconsolidation.marshall;
 
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.CointrackingTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.PoloniexTransaction;
@@ -15,12 +15,12 @@ import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
-public class PoloniexToCointrackingTransactionFactoryTest {
+public class PoloniexToCointrackingMarshallerTest {
 
     public static final String OMNI = "OMNI";
     public static final String BTC = "BTC";
     @InjectMocks
-    private PoloniexToCointrackingTransactionFactory poloniexToCointrackingTransactionFactory;
+    private PoloniexToCointrackingMarshaller poloniexToCointrackingMarshaller;
 
     private PoloniexTransaction poloniexTransaction;
 
@@ -35,14 +35,11 @@ public class PoloniexToCointrackingTransactionFactoryTest {
         poloniexTransaction.setMarket(OMNI + "/BTC");
     }
 
-
-
     @Test
     public void build_returnsHydratedBuyCointrackingTransaction(){
-
         setupBuy();
 
-        CointrackingTransaction cointrackingTransaction = poloniexToCointrackingTransactionFactory.build(poloniexTransaction);
+        CointrackingTransaction cointrackingTransaction = poloniexToCointrackingMarshaller.marshall(poloniexTransaction);
 
         verifyCommonFields(cointrackingTransaction);
 
@@ -63,10 +60,9 @@ public class PoloniexToCointrackingTransactionFactoryTest {
 
     @Test
     public void build_returnsHydratedSellCointrackingTransaction(){
-
         setupSell();
 
-        CointrackingTransaction cointrackingTransaction = poloniexToCointrackingTransactionFactory.build(poloniexTransaction);
+        CointrackingTransaction cointrackingTransaction = poloniexToCointrackingMarshaller.marshall(poloniexTransaction);
 
         verifyCommonFields(cointrackingTransaction);
 
@@ -86,7 +82,7 @@ public class PoloniexToCointrackingTransactionFactoryTest {
     }
 
     private void setupBuy() {
-        poloniexTransaction.setType(PoloniexToCointrackingTransactionFactory.BUY);
+        poloniexTransaction.setType(PoloniexToCointrackingMarshaller.BUY);
 
         poloniexTransaction.setPrice("0.02730000");
         BigDecimal amount = new BigDecimal(1.06458074).setScale(8, RoundingMode.HALF_EVEN);
@@ -103,7 +99,7 @@ public class PoloniexToCointrackingTransactionFactoryTest {
     }
 
     private void setupSell() {
-        poloniexTransaction.setType(PoloniexToCointrackingTransactionFactory.SELL);
+        poloniexTransaction.setType(PoloniexToCointrackingMarshaller.SELL);
 
         poloniexTransaction.setPrice("0.03093042");
         BigDecimal amount = new BigDecimal(1.04839490).setScale(8, RoundingMode.HALF_EVEN);
@@ -123,10 +119,10 @@ public class PoloniexToCointrackingTransactionFactoryTest {
         assertNotNull(cointrackingTransaction);
 
         assertNotNull(cointrackingTransaction.getExchange());
-        assertEquals(PoloniexToCointrackingTransactionFactory.POLONIEX, cointrackingTransaction.getExchange());
+        assertEquals(PoloniexToCointrackingMarshaller.POLONIEX, cointrackingTransaction.getExchange());
 
         assertNotNull(cointrackingTransaction.getType());
-        assertEquals(PoloniexToCointrackingTransactionFactory.TRADE, cointrackingTransaction.getType());
+        assertEquals(PoloniexToCointrackingMarshaller.TRADE, cointrackingTransaction.getType());
 
         assertNotNull(cointrackingTransaction.getTradedate());
         assertEquals(poloniexTransaction.getDate(), cointrackingTransaction.getTradedate());

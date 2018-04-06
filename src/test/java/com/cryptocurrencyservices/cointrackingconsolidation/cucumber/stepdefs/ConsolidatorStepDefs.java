@@ -8,7 +8,15 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static junit.framework.TestCase.assertNotNull;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConsolidatorStepDefs extends StepDefs {
 
@@ -34,17 +42,20 @@ public class ConsolidatorStepDefs extends StepDefs {
     @When("^I use the Poloniex Consolidator Service to consoliate$")
     public void i_use_the_Poloniex_Consolidator_Service_to_consoliate() throws Throwable {
 
-        consolidatorService.consolidate(
+        consolidatorService.consolidatePoloniex(
                 sourceCsvFileName,
-                PoloniexTransaction.class,
-                destinatinCsvFileName,
-//                cointrackingTransaction.getClass()
-                CointrackingTransaction.class
+                destinatinCsvFileName
         );
     }
 
     @Then("^I see the poloniex transactions consolidated into a csv file$")
     public void i_see_the_poloniex_transactions_consolidated_into_a_csv_file() throws Throwable {
+        File destinationCointrackingTransactionFile = new File(destinatinCsvFileName);
+
+        BufferedReader br = new BufferedReader(new FileReader(destinationCointrackingTransactionFile));
+
+        String st = new String(Files.readAllBytes(Paths.get(destinatinCsvFileName)));
+        assertThat(st, containsString("OMNI"));
     }
 
 }

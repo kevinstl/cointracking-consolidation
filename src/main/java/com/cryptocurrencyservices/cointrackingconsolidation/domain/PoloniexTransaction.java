@@ -1,5 +1,6 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.domain;
 
+
 public class PoloniexTransaction {
 
     private String date;

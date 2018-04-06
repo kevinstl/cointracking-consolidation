@@ -1,4 +1,4 @@
-package com.cryptocurrencyservices.cointrackingconsolidation.factory;
+package com.cryptocurrencyservices.cointrackingconsolidation.marshall;
 
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.CointrackingTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.PoloniexTransaction;
@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Component
-public class PoloniexToCointrackingTransactionFactory {
+public class PoloniexToCointrackingMarshaller {
 
 
     public static final String POLONIEX = "Poloniex";
@@ -17,7 +17,7 @@ public class PoloniexToCointrackingTransactionFactory {
     public static final String BUY = "Buy";
     public static final String SELL = "Sell";
 
-    public CointrackingTransaction build(PoloniexTransaction poloniexTransaction) {
+    public CointrackingTransaction marshall(PoloniexTransaction poloniexTransaction) {
         CointrackingTransaction cointrackingTransaction = new CointrackingTransaction();
 
         cointrackingTransaction.setBuyamount(poloniexTransaction.getAmount());
@@ -29,11 +29,6 @@ public class PoloniexToCointrackingTransactionFactory {
         cointrackingTransaction.setSellamount(poloniexTransaction.getAmount());
 
         cointrackingTransaction.setExchange(POLONIEX);
-
-
-
-
-
 
         cointrackingTransaction.setType(TRADE);
 

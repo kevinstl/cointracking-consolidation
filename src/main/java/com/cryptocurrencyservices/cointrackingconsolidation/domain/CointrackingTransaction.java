@@ -1,5 +1,6 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.domain;
 
+
 public class CointrackingTransaction {
 
     private String type;
