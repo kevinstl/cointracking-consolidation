@@ -26,11 +26,11 @@ public class CsvWriterStepDefs extends StepDefs {
     private String destinatinCsvFileName = System.getenv("DESTINATION_CSV_FILE_NAME");
 
     private String type = "Buy";
-    private Double buyAmount = 5.1;
+    private String buyAmount = "5.1";
     private String buyCur = "";
-    private Double sellAmount = 0.0;
+    private String sellAmount = "0.0";
     private String sellCur;
-    private Double feeAmount;
+    private String feeAmount;
     private String feeCur;
     private String exchange;
     private String group;
@@ -59,7 +59,7 @@ public class CsvWriterStepDefs extends StepDefs {
         BufferedReader br = new BufferedReader(new FileReader(destinationCointrackingTransactionFile));
 
         String st = new String(Files.readAllBytes(Paths.get(destinatinCsvFileName)));
-        assertThat(st, containsString(Double.toString(buyAmount)));
+        assertThat(st, containsString(buyAmount));
     }
 
 }

@@ -3,11 +3,11 @@ package com.cryptocurrencyservices.cointrackingconsolidation.domain;
 public class CointrackingTransaction {
 
     private String type;
-    private Double buyamount;
+    private String buyamount;
     private String buycur;
-    private Double sellamount;
+    private String sellamount;
     private String sellcur;
-    private Double feeamount;
+    private String feeamount;
     private String feecur;
     private String exchange;
     private String group;
@@ -22,11 +22,11 @@ public class CointrackingTransaction {
         this.type = type;
     }
 
-    public Double getBuyamount() {
+    public String getBuyamount() {
         return buyamount;
     }
 
-    public void setBuyamount(Double buyamount) {
+    public void setBuyamount(String buyamount) {
         this.buyamount = buyamount;
     }
 
@@ -38,11 +38,11 @@ public class CointrackingTransaction {
         this.buycur = buycur;
     }
 
-    public Double getSellamount() {
+    public String getSellamount() {
         return sellamount;
     }
 
-    public void setSellamount(Double sellamount) {
+    public void setSellamount(String sellamount) {
         this.sellamount = sellamount;
     }
 
@@ -54,11 +54,11 @@ public class CointrackingTransaction {
         this.sellcur = sellcur;
     }
 
-    public Double getFeeamount() {
+    public String getFeeamount() {
         return feeamount;
     }
 
-    public void setFeeamount(Double feeamount) {
+    public void setFeeamount(String feeamount) {
         this.feeamount = feeamount;
     }
 
@@ -102,7 +102,7 @@ public class CointrackingTransaction {
         this.tradedate = tradedate;
     }
 
-//    @Override
+    //    @Override
 //    public String toString() {
 //        return new ToStringBuilder(this)
 //                .append("type", type)
