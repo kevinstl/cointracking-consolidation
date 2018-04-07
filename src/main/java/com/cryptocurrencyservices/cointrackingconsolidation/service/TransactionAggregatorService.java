@@ -17,12 +17,12 @@ public class TransactionAggregatorService {
 
     public void aggregate(CointrackingTransaction cointrackingTransaction) {
 
-        String key = cointrackingTransaction.getBuycur();
+        String key = cointrackingTransaction.getKey();
 
-        CointrackingTransaction retainedCointrackingTransaction = null;
+        CointrackingTransaction retainedCointrackingTransaction = aggregatedCointrackingTransactions.get(key);
 
-        if(!aggregatedCointrackingTransactions.isEmpty()){
-            retainedCointrackingTransaction = aggregatedCointrackingTransactions.get(key);
+        if(retainedCointrackingTransaction != null){
+//            retainedCointrackingTransaction = aggregatedCointrackingTransactions.get(key);
             BigDecimal newValue = new BigDecimal(cointrackingTransaction.getBuyamount())
                     .add(new BigDecimal(retainedCointrackingTransaction.getBuyamount()));
 
