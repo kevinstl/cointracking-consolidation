@@ -49,6 +49,8 @@ public class TransactionAggregatorServiceTest {
         cointrackingTransaction1_1 = new CointrackingTransaction();
         cointrackingTransaction1_1.setExchange(EXCHANGE_1);
         cointrackingTransaction1_1.setBuyamount("1");
+        cointrackingTransaction1_1.setSellamount("1");
+        cointrackingTransaction1_1.setFeeamount("1");
         cointrackingTransaction1_1.setBuycur(CUR_1_1);
         cointrackingTransaction1_1.setSellcur(CUR_1_2);
         cointrackingTransaction1_1.setTradedate(TRADE_DATE_1_1);
@@ -56,6 +58,8 @@ public class TransactionAggregatorServiceTest {
         cointrackingTransaction1_2 = new CointrackingTransaction();
         cointrackingTransaction1_2.setExchange(EXCHANGE_1);
         cointrackingTransaction1_2.setBuyamount("1");
+        cointrackingTransaction1_2.setSellamount("1");
+        cointrackingTransaction1_2.setFeeamount("1");
         cointrackingTransaction1_2.setBuycur(CUR_1_1);
         cointrackingTransaction1_2.setSellcur(CUR_1_2);
         cointrackingTransaction1_2.setTradedate(TRADE_DATE_1_2);
@@ -65,6 +69,8 @@ public class TransactionAggregatorServiceTest {
         cointrackingTransaction2_1 = new CointrackingTransaction();
         cointrackingTransaction2_1.setExchange(EXCHANGE_1);
         cointrackingTransaction2_1.setBuyamount("1");
+        cointrackingTransaction2_1.setSellamount("1");
+        cointrackingTransaction2_1.setFeeamount("1");
         cointrackingTransaction2_1.setBuycur(CUR_1_1);
         cointrackingTransaction2_1.setSellcur(CUR_1_2);
         cointrackingTransaction2_1.setTradedate(TRADE_DATE_2_1);
@@ -72,6 +78,8 @@ public class TransactionAggregatorServiceTest {
         cointrackingTransaction2_2 = new CointrackingTransaction();
         cointrackingTransaction2_2.setExchange(EXCHANGE_1);
         cointrackingTransaction2_2.setBuyamount("1");
+        cointrackingTransaction2_2.setSellamount("1");
+        cointrackingTransaction2_2.setFeeamount("1");
         cointrackingTransaction2_2.setBuycur(CUR_1_1);
         cointrackingTransaction2_2.setSellcur(CUR_1_2);
         cointrackingTransaction2_2.setTradedate(TRADE_DATE_2_1);
@@ -79,6 +87,8 @@ public class TransactionAggregatorServiceTest {
         cointrackingTransaction2_3 = new CointrackingTransaction();
         cointrackingTransaction2_3.setExchange(EXCHANGE_1);
         cointrackingTransaction2_3.setBuyamount("1");
+        cointrackingTransaction2_3.setSellamount("1");
+        cointrackingTransaction2_3.setFeeamount("1");
         cointrackingTransaction2_3.setBuycur(CUR_1_1);
         cointrackingTransaction2_3.setSellcur(CUR_1_2);
         cointrackingTransaction2_3.setTradedate(TRADE_DATE_2_1);
@@ -88,6 +98,8 @@ public class TransactionAggregatorServiceTest {
         cointrackingTransaction3_1 = new CointrackingTransaction();
         cointrackingTransaction3_1.setExchange(EXCHANGE_1);
         cointrackingTransaction3_1.setBuyamount("1");
+        cointrackingTransaction3_1.setSellamount("1");
+        cointrackingTransaction3_1.setFeeamount("1");
         cointrackingTransaction3_1.setBuycur(CUR_1_2);
         cointrackingTransaction3_1.setSellcur(CUR_1_1);
         cointrackingTransaction3_1.setTradedate(TRADE_DATE_1_1);
@@ -95,6 +107,8 @@ public class TransactionAggregatorServiceTest {
         cointrackingTransaction3_2 = new CointrackingTransaction();
         cointrackingTransaction3_2.setExchange(EXCHANGE_1);
         cointrackingTransaction3_2.setBuyamount("1");
+        cointrackingTransaction3_2.setSellamount("1");
+        cointrackingTransaction3_2.setFeeamount("1");
         cointrackingTransaction3_2.setBuycur(CUR_1_2);
         cointrackingTransaction3_2.setSellcur(CUR_1_1);
         cointrackingTransaction3_2.setTradedate(TRADE_DATE_1_2);
@@ -104,6 +118,8 @@ public class TransactionAggregatorServiceTest {
         cointrackingTransaction4_1 = new CointrackingTransaction();
         cointrackingTransaction4_1.setExchange(EXCHANGE_2);
         cointrackingTransaction4_1.setBuyamount("1");
+        cointrackingTransaction4_1.setSellamount("1");
+        cointrackingTransaction4_1.setFeeamount("1");
         cointrackingTransaction4_1.setBuycur(CUR_1_2);
         cointrackingTransaction4_1.setSellcur(CUR_1_1);
         cointrackingTransaction4_1.setTradedate(TRADE_DATE_1_2);
@@ -238,6 +254,8 @@ public class TransactionAggregatorServiceTest {
         assertEquals("2", aggregatedCointrackingTransactions.get(key1).getBuyamount());
         assertTrue(aggregatedCointrackingTransactions.containsKey(key2));
         assertEquals("3", aggregatedCointrackingTransactions.get(key2).getBuyamount());
+        assertEquals("3", aggregatedCointrackingTransactions.get(key2).getSellamount());
+        assertEquals("3", aggregatedCointrackingTransactions.get(key2).getFeeamount());
         assertTrue(aggregatedCointrackingTransactions.containsKey(key3));
         assertEquals("2", aggregatedCointrackingTransactions.get(key3).getBuyamount());
         assertTrue(aggregatedCointrackingTransactions.containsKey(key4));
