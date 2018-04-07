@@ -7,6 +7,7 @@ import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvBeanReade
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvBeanWriterFactory;
 import com.cryptocurrencyservices.cointrackingconsolidation.marshall.PoloniexToCointrackingMarshaller;
 import com.cryptocurrencyservices.cointrackingconsolidation.junit.extension.mockito.MockitoExtension;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +17,10 @@ import org.supercsv.io.CsvBeanWriter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,6 +32,7 @@ import static org.mockito.internal.verification.VerificationModeFactory.times;
 @ExtendWith(MockitoExtension.class)
 public class ConsolidatorServiceTest {
 
+    public static final String KEY_1 = "key1";
     @InjectMocks
     private ConsolidatorService classUnderTest;
 
@@ -49,6 +54,9 @@ public class ConsolidatorServiceTest {
     @Mock
     private PoloniexToCointrackingMarshaller poloniexToCointrackingMarshaller;
 
+    @Mock
+    private TransactionAggregatorService transactionAggregatorService;
+
     private String line2;
     private String sourcePolonexFileName;
     private String destinationCsvFileName;
@@ -63,6 +71,15 @@ public class ConsolidatorServiceTest {
 
     private CointrackingTransaction cointrackingTransaction1 = new CointrackingTransaction();
     private CointrackingTransaction cointrackingTransaction2 = new CointrackingTransaction();
+
+    private CointrackingTransaction aggregateCointrackingTransaction1 = new CointrackingTransaction();
+
+    private Map<String, CointrackingTransaction> aggregateCointrackingTransactions1 = new LinkedHashMap<>();
+
+    @BeforeEach
+    public void setup(){
+        aggregateCointrackingTransactions1.put(KEY_1, aggregateCointrackingTransaction1);
+    }
 
 
     @Test
@@ -103,11 +120,13 @@ public class ConsolidatorServiceTest {
 //        when(csvBeanReader.read(sourceClassType, poloniexHeader)).thenReturn(poloniexHeaderRecord, poloniexTransaction1, poloniexTransaction2, null);
         when(csvBeanReader.read(sourceClassType, poloniexHeader)).thenReturn(poloniexHeaderRecord, poloniexTransaction1, poloniexTransaction2, null);
 
-        when(csvHeaderFactory.build(destinationClassType)).thenReturn(cointrackingHeader);
-        when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
-
         when(poloniexToCointrackingMarshaller.marshall(poloniexTransaction1)).thenReturn(cointrackingTransaction1);
         when(poloniexToCointrackingMarshaller.marshall(poloniexTransaction2)).thenReturn(cointrackingTransaction2);
+
+        when(transactionAggregatorService.getaggregatedCointrackingTransactions()).thenReturn(aggregateCointrackingTransactions1);
+
+        when(csvHeaderFactory.build(destinationClassType)).thenReturn(cointrackingHeader);
+        when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
 
 
         classUnderTest.consolidatePoloniex(sourcePolonexFileName, destinationCsvFileName);
@@ -116,17 +135,24 @@ public class ConsolidatorServiceTest {
         verify(csvBeanReaderFactory).build(sourcePolonexFileName);
         verify(csvHeaderFactory).build(sourceClassType);
 
+        verify(transactionAggregatorService).init();
+
         verify(csvBeanReader, times(4)).read(sourceClassType, poloniexHeader);
 
-        verify(csvBeanWriterFactory).build(destinationCsvFileName);
-        verify(csvHeaderFactory).build(destinationClassType);
-        verify(csvBeanWriter).writeHeader(cointrackingHeader);
-        verify(csvBeanWriter, times(1)).write(cointrackingTransaction1, cointrackingHeader);
-        verify(csvBeanWriter, times(1)).write(cointrackingTransaction2, cointrackingHeader);
+        verify(transactionAggregatorService).aggregate(cointrackingTransaction1);
+        verify(transactionAggregatorService).aggregate(cointrackingTransaction2);
 
         verify(poloniexToCointrackingMarshaller, times(0)).marshall(poloniexHeaderRecord);
         verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction1);
         verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction2);
+
+        verify(csvBeanWriterFactory).build(destinationCsvFileName);
+        verify(csvHeaderFactory).build(destinationClassType);
+        verify(csvBeanWriter).writeHeader(cointrackingHeader);
+
+        verify(csvBeanWriter, times(1)).write(aggregateCointrackingTransaction1, cointrackingHeader);
+
+
 
     }
 

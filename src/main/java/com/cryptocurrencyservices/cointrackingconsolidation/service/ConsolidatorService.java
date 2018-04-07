@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class ConsolidatorService {
@@ -30,6 +31,9 @@ public class ConsolidatorService {
 
     @Autowired
     private PoloniexToCointrackingMarshaller poloniexToCointrackingMarshaller;
+
+    @Autowired
+    private TransactionAggregatorService transactionAggregatorService;
 
     public <SourceT, DestinationT> void consolidate(String sourcePolonexFileName,
                                                      Class<SourceT> sourceClassType,
@@ -60,9 +64,7 @@ public class ConsolidatorService {
         final String[] sourceHeader = csvHeaderFactory.build(PoloniexTransaction.class);
 //        final String[] sourceHeader = csvBeanReader.getHeader(true);
 
-        CsvBeanWriter csvBeanWriter = csvBeanWriterFactory.build(destinationCsvFileName);
-        final String[] destinatinHeader = csvHeaderFactory.build(CointrackingTransaction.class);
-        csvBeanWriter.writeHeader(destinatinHeader);
+        transactionAggregatorService.init();
 
         PoloniexTransaction sourceRecordObject = null;
 
@@ -71,10 +73,26 @@ public class ConsolidatorService {
             System.out.println(sourceRecordObject);
             if(row > 0){
                 CointrackingTransaction destinationRecordObject = poloniexToCointrackingMarshaller.marshall(sourceRecordObject);
-                csvBeanWriter.write(destinationRecordObject, destinatinHeader);
+
+                transactionAggregatorService.aggregate(destinationRecordObject);
+
             }
             row ++;
         }
+
+        Map<String, CointrackingTransaction> aggregateCointrackingTransactions =
+                transactionAggregatorService.getaggregatedCointrackingTransactions();
+        CsvBeanWriter csvBeanWriter = csvBeanWriterFactory.build(destinationCsvFileName);
+        final String[] destinatinHeader = csvHeaderFactory.build(CointrackingTransaction.class);
+        csvBeanWriter.writeHeader(destinatinHeader);
+        aggregateCointrackingTransactions.forEach((k, v) -> {
+            try {
+                csvBeanWriter.write(v, destinatinHeader);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+//                csvBeanWriter.write(destinationRecordObject, destinatinHeader);
 
         csvBeanReader.close();
         csvBeanWriter.close();
