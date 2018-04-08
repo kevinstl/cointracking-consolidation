@@ -22,8 +22,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CsvReaderStepDefs extends StepDefs {
 
-    public static final String POLONIEX = "POLONIEX";
-    public static final String BITTREX = "BITTREX";
+
+
     @Autowired
     private CsvReaderService csvReaderService;
 

@@ -6,4 +6,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class, classes = CucumberConfiguration.class)
 public class StepDefs {
+    public static final String POLONIEX = "POLONIEX";
+    public static final String BITTREX = "BITTREX";
 }

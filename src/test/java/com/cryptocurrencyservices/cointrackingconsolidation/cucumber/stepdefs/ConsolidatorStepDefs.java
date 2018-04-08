@@ -1,7 +1,6 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.cucumber.stepdefs;
 
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.CointrackingTransaction;
-import com.cryptocurrencyservices.cointrackingconsolidation.domain.PoloniexTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.service.ConsolidatorService;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -23,38 +22,57 @@ public class ConsolidatorStepDefs extends StepDefs {
     @Autowired
     private ConsolidatorService consolidatorService;
 
+    private String sourceCsvFileDir = null;
     private String sourceCsvFileName = null;
-    private String destinatinCsvFileName = null;
+    private String destinationCsvFileDir = null;
+    private String destinationCsvFileName = null;
+    private String destinationCsvFilePrefix = null;
 
     private CointrackingTransaction cointrackingTransaction = new CointrackingTransaction();
+    private String destinationCsvFileNameFull;
 
-    @Given("^I have access to the Poloniex Consolidator Service$")
-    public void i_have_access_to_the_Poloniex_Consolidator_Service() throws Throwable {
+    @Given("^I have access to the \"([^\"]*)\" Consolidator Service$")
+    public void i_have_access_to_the_Consolidator_Service(String exchange) throws Throwable {
 
         assertNotNull(consolidatorService);
 
-        sourceCsvFileName = System.getenv("SOURCE_POLONIEX_CSV_FILE_NAME");
-        destinatinCsvFileName = System.getenv("DESTINATION_CSV_FILE_NAME");
+        sourceCsvFileDir = System.getenv("SOURCE_CSV_FILE_DIR");
+        sourceCsvFileName = System.getenv("SOURCE_" + exchange + "_CSV_FILE_NAME");
+
+        destinationCsvFileDir = System.getenv("DESTINATION_CSV_FILE_DIR");
+        destinationCsvFilePrefix = System.getenv("DESTINATION_CSV_FILE_PREFIX");
+        destinationCsvFileName = System.getenv("DESTINATION_CSV_FILE_NAME");
+
+        destinationCsvFileNameFull = destinationCsvFileDir + destinationCsvFilePrefix + sourceCsvFileName;
 
         cointrackingTransaction.setType("Buy");
     }
 
-    @When("^I use the Poloniex Consolidator Service to consoliate$")
-    public void i_use_the_Poloniex_Consolidator_Service_to_consoliate() throws Throwable {
+    @When("^I use the \"([^\"]*)\" Consolidator Service to consoliate$")
+    public void i_use_the_Consolidator_Service_to_consoliate(String exchange) throws Throwable {
 
-        consolidatorService.consolidatePoloniex(
-                sourceCsvFileName,
-                destinatinCsvFileName
-        );
+        if(exchange.equals(POLONIEX)) {
+
+            consolidatorService.consolidatePoloniex(
+                    sourceCsvFileDir + sourceCsvFileName,
+                    destinationCsvFileNameFull
+            );
+        }
+//        else if(exchange.equals(POLONIEX)) {
+//            consolidatorService.consolidateBittrex(
+//                    sourceCsvFileName,
+//                    destinationCsvFileName
+//            );
+//        }
     }
 
-    @Then("^I see the poloniex transactions consolidated into a csv file$")
-    public void i_see_the_poloniex_transactions_consolidated_into_a_csv_file() throws Throwable {
-        File destinationCointrackingTransactionFile = new File(destinatinCsvFileName);
+    @Then("^I see the \"([^\"]*)\" transactions consolidated into a csv file$")
+    public void i_see_the_transactions_consolidated_into_a_csv_file(String exchange) throws Throwable {
+//        File destinationCointrackingTransactionFile = new File(destinationCsvFileName);
 
-        BufferedReader br = new BufferedReader(new FileReader(destinationCointrackingTransactionFile));
+//        BufferedReader br = new BufferedReader(new FileReader(destinationCointrackingTransactionFile));
 
-        String st = new String(Files.readAllBytes(Paths.get(destinatinCsvFileName)));
+        String st = new String(Files.readAllBytes(Paths.get(destinationCsvFileNameFull)));
         assertThat(st, containsString("OMNI"));
     }
 
