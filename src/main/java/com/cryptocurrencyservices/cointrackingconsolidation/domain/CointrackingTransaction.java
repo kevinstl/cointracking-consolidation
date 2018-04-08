@@ -127,7 +127,9 @@ public class CointrackingTransaction {
         return getExchange() + "_"
                 + getBuycur()  + "_"
                 + getSellcur()  + "_"
-                + getTradedate().substring(0, 10);
+//                + getTradedate().substring(0, 10)
+                + getTradedate().substring(0)
+                ;
     }
 
 

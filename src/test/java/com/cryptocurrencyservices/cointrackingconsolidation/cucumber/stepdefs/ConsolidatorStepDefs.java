@@ -58,12 +58,12 @@ public class ConsolidatorStepDefs extends StepDefs {
                     destinationCsvFileNameFull
             );
         }
-//        else if(exchange.equals(POLONIEX)) {
-//            consolidatorService.consolidateBittrex(
-//                    sourceCsvFileName,
-//                    destinationCsvFileName
-//            );
-//        }
+        else if(exchange.equals(BITTREX)) {
+            consolidatorService.consolidateBittrex(
+                    sourceCsvFileName,
+                    destinationCsvFileName
+            );
+        }
     }
 
     @Then("^I see the \"([^\"]*)\" transactions consolidated into a csv file$")
@@ -73,7 +73,7 @@ public class ConsolidatorStepDefs extends StepDefs {
 //        BufferedReader br = new BufferedReader(new FileReader(destinationCointrackingTransactionFile));
 
         String st = new String(Files.readAllBytes(Paths.get(destinationCsvFileNameFull)));
-        assertThat(st, containsString("OMNI"));
+        assertThat(st, containsString("EDG"));
     }
 
 }

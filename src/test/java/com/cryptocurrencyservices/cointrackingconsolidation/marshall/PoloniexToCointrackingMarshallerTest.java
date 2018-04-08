@@ -20,7 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @ExtendWith(MockitoExtension.class)
 public class PoloniexToCointrackingMarshallerTest {
 
-    public static final String OMNI = "OMNI";
+    public static final String OMNI = "EDG";
     public static final String BTC = "BTC";
     @InjectMocks
     private PoloniexToCointrackingMarshaller poloniexToCointrackingMarshaller;
