@@ -130,21 +130,6 @@ public class CointrackingTransaction {
                 + getTradedate().substring(0, 10);
     }
 
-    //    @Override
-//    public String toString() {
-//        return new ToStringBuilder(this)
-//                .append("type", type)
-//                .append("buyAmount", buyAmount)
-//                .append("buyCur", buyCur)
-//                .append("sellAmount", sellAmount)
-//                .append("sellCur", sellCur)
-//                .append("feeAmount", feeAmount)
-//                .append("feeCur", feeCur)
-//                .append("tradeDate", tradeDate)
-//                .append("exchange", exchange)
-//                .append("group", group)
-//                .append("comment", comment).toString();
-//    }
 
 
 }

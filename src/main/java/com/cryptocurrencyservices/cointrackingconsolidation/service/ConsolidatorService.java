@@ -59,7 +59,7 @@ public class ConsolidatorService {
 
     }
 
-    public void consolidatePoloniex(String sourcePolonexFileName, String destinationCsvFileName) throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public void consolidatePoloniex(String sourcePolonexFileName, String destinationCsvFileName) throws IOException {
         CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourcePolonexFileName);
         final String[] sourceHeader = csvHeaderFactory.build(PoloniexTransaction.class);
 //        final String[] sourceHeader = csvBeanReader.getHeader(true);

@@ -23,7 +23,7 @@ public class ConsolidatorStepDefs extends StepDefs {
     @Autowired
     private ConsolidatorService consolidatorService;
 
-    String sourceCsvFileName = null;
+    private String sourceCsvFileName = null;
     private String destinatinCsvFileName = null;
 
     private CointrackingTransaction cointrackingTransaction = new CointrackingTransaction();

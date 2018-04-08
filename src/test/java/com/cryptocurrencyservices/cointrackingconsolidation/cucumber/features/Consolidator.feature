@@ -1,4 +1,4 @@
-@ALL_TESTS @CONSOLIDATOR @WIP
+@ALL_TESTS @CONSOLIDATOR
 Feature: Consolidator
 
 

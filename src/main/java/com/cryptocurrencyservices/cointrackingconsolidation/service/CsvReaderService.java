@@ -25,6 +25,7 @@ public class CsvReaderService {
         final String[] header = csvHeaderFactory.build(classType);
 
         T cvsRecordObject = csvBeanReader.read(classType, header);
+        cvsRecordObject = csvBeanReader.read(classType, header);
 
         return cvsRecordObject;
     }
