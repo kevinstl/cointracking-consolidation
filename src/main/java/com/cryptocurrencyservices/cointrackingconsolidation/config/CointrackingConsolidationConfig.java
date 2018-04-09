@@ -17,19 +17,61 @@ public class CointrackingConsolidationConfig {
     @Autowired
     private ConsolidatorService consolidatorService;
 
-    private String sourceCsvFileName = null;
-    private String destinatinCsvFileName = null;
+    private String sourceCsvFileDir = null;
+//    private String sourceCsvFileName = null;
+    private String destinationCsvFileDir = null;
+    private String destinationCsvFileName = null;
+    private String destinationCsvFilePrefix = null;
+//    private String destinationCsvFileNameFull = null;
 
     public void start() throws IOException {
 
-        sourceCsvFileName = System.getenv("SOURCE_POLONIEX_CSV_FILE_NAME");
-        destinatinCsvFileName = System.getenv("DESTINATION_CSV_FILE_NAME");
+        sourceCsvFileDir = System.getenv("SOURCE_CSV_FILE_DIR");
 
+        destinationCsvFileDir = System.getenv("DESTINATION_CSV_FILE_DIR");
+        destinationCsvFilePrefix = System.getenv("DESTINATION_CSV_FILE_PREFIX");
+        destinationCsvFileName = System.getenv("DESTINATION_CSV_FILE_NAME");
+
+//        processPoloniex("POLONIEX");
+//        processBittrex("BITTREX");
+        processBitfinex("BITFINEX");
+
+    }
+
+    private void processPoloniex(String exchange) throws IOException {
+        String sourceCsvFileName = buildSourceCsvFileName(exchange);
+        String destinationCsvFileNameFull = buildDestinationCsvFileNameFull(sourceCsvFileName);
         consolidatorService.consolidatePoloniex(
-                sourceCsvFileName,
-                destinatinCsvFileName
+                sourceCsvFileDir + sourceCsvFileName,
+                destinationCsvFileNameFull
         );
+    }
 
+    private void processBittrex(String exchange) throws IOException {
+        String sourceCsvFileName = buildSourceCsvFileName(exchange);
+        String destinationCsvFileNameFull = buildDestinationCsvFileNameFull(sourceCsvFileName);
+        consolidatorService.consolidateBittrex(
+                sourceCsvFileDir + sourceCsvFileName,
+                destinationCsvFileNameFull
+        );
+    }
+
+    private void processBitfinex(String exchange) throws IOException {
+        String sourceCsvFileName = buildSourceCsvFileName(exchange);
+        String destinationCsvFileNameFull = buildDestinationCsvFileNameFull(sourceCsvFileName);
+        consolidatorService.consolidateBitfinex(
+                sourceCsvFileDir + sourceCsvFileName,
+                destinationCsvFileNameFull
+        );
+    }
+
+
+    private String buildDestinationCsvFileNameFull(String sourceCsvFileName) {
+        return destinationCsvFileDir + destinationCsvFilePrefix + sourceCsvFileName;
+    }
+
+    private String buildSourceCsvFileName(String exchange) {
+        return System.getenv("SOURCE_" + exchange + "_CSV_FILE_NAME");
     }
 
 }

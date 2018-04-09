@@ -1,11 +1,13 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.service;
 
+import com.cryptocurrencyservices.cointrackingconsolidation.domain.BitfinexTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.BittrexTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.CointrackingTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.domain.PoloniexTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvHeaderFactory;
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvBeanReaderFactory;
 import com.cryptocurrencyservices.cointrackingconsolidation.factory.CsvBeanWriterFactory;
+import com.cryptocurrencyservices.cointrackingconsolidation.marshall.BitfinexToCointrackingMarshaller;
 import com.cryptocurrencyservices.cointrackingconsolidation.marshall.BittrexToCointrackingMarshaller;
 import com.cryptocurrencyservices.cointrackingconsolidation.marshall.PoloniexToCointrackingMarshaller;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +34,102 @@ public class ConsolidatorService {
     private CsvHeaderFactory csvHeaderFactory;
 
     @Autowired
+    private PoloniexToCointrackingMarshaller poloniexToCointrackingMarshaller;
+
+    @Autowired
     private BittrexToCointrackingMarshaller bittrexToCointrackingMarshaller;
 
     @Autowired
+    private BitfinexToCointrackingMarshaller bitfinexToCointrackingMarshaller;
+
+    @Autowired
     private TransactionAggregatorService transactionAggregatorService;
+
+    public void consolidatePoloniex
+            (String sourcePolonexFileName, String destinationCsvFileName) throws IOException {
+        CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourcePolonexFileName);
+        final String[] sourceHeader = csvHeaderFactory.build(PoloniexTransaction.class);
+
+        transactionAggregatorService.init();
+
+        PoloniexTransaction sourceRecordObject = null;
+
+        int row = 0;
+        while((sourceRecordObject = csvBeanReader.read(PoloniexTransaction.class, sourceHeader) ) != null){
+//            if(sourceRecordObject.getMarket().equals("XEM/BTC")) {
+                if (row > 0) {
+                    CointrackingTransaction destinationRecordObject = poloniexToCointrackingMarshaller.marshall(sourceRecordObject);
+                    transactionAggregatorService.aggregate(destinationRecordObject);
+                }
+//            }
+            row ++;
+        }
+
+        CsvBeanWriter csvBeanWriter = writeDestinationCsv(destinationCsvFileName);
+        csvBeanReader.close();
+        csvBeanWriter.close();
+    }
+
+
+    public void consolidateBittrex(String sourceCsvFileName, String destinationCsvFileName) throws IOException {
+        CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourceCsvFileName);
+        final String[] sourceHeader = csvHeaderFactory.build(BittrexTransaction.class);
+
+        transactionAggregatorService.init();
+
+        BittrexTransaction sourceRecordObject = null;
+
+        int row = 0;
+        while((sourceRecordObject = csvBeanReader.read(BittrexTransaction.class, sourceHeader) ) != null){
+//            System.out.println(sourceRecordObject);
+
+//            if(sourceRecordObject.getExchange().equals("BTC-XEM")) {
+                if (row > 0) {
+                    CointrackingTransaction destinationRecordObject = bittrexToCointrackingMarshaller.marshall(sourceRecordObject);
+
+                    transactionAggregatorService.aggregate(destinationRecordObject);
+
+                }
+//            }
+            row ++;
+        }
+
+        CsvBeanWriter csvBeanWriter = writeDestinationCsv(destinationCsvFileName);
+
+        csvBeanReader.close();
+        csvBeanWriter.close();
+    }
+
+
+    public void consolidateBitfinex(String sourceCsvFileName, String destinationCsvFileName) throws IOException {
+        CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourceCsvFileName);
+        final String[] sourceHeader = csvHeaderFactory.build(BitfinexTransaction.class);
+
+        transactionAggregatorService.init();
+
+        BitfinexTransaction sourceRecordObject = null;
+
+        int row = 0;
+        while((sourceRecordObject = csvBeanReader.read(BitfinexTransaction.class, sourceHeader) ) != null){
+//            System.out.println(sourceRecordObject);
+
+//            if(sourceRecordObject.getExchange().equals("BTC-XEM")) {
+                if (row > 0) {
+                    CointrackingTransaction destinationRecordObject = bitfinexToCointrackingMarshaller.marshall(sourceRecordObject);
+
+                    transactionAggregatorService.aggregate(destinationRecordObject);
+
+                }
+//            }
+            row ++;
+        }
+
+        CsvBeanWriter csvBeanWriter = writeDestinationCsv(destinationCsvFileName);
+
+        csvBeanReader.close();
+        csvBeanWriter.close();
+    }
+
 
     public <SourceT, DestinationT> void consolidate(String sourcePolonexFileName,
                                                      Class<SourceT> sourceClassType,
@@ -50,7 +144,7 @@ public class ConsolidatorService {
 
         SourceT sourceRecordObject = null;
         while( (sourceRecordObject = csvBeanReader.read(sourceClassType, sourceHeader) ) != null){
-            System.out.println(sourceRecordObject);
+//            System.out.println(sourceRecordObject);
             DestinationT destinationRecordObject = destinationClassType.getDeclaredConstructor().newInstance();
 //            DestinationT destinationRecordObject = sourceRecordObject.marshall();
             csvBeanWriter.write(destinationRecordObject);
@@ -61,33 +155,6 @@ public class ConsolidatorService {
 
     }
 
-    public void consolidatePoloniex
-            (String sourcePolonexFileName, String destinationCsvFileName) throws IOException {
-        CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourcePolonexFileName);
-        final String[] sourceHeader = csvHeaderFactory.build(PoloniexTransaction.class);
-//        final String[] sourceHeader = csvBeanReader.getHeader(true);
-
-        transactionAggregatorService.init();
-
-        BittrexTransaction sourceRecordObject = null;
-
-        int row = 0;
-        while((sourceRecordObject = csvBeanReader.read(BittrexTransaction.class, sourceHeader) ) != null){
-            System.out.println(sourceRecordObject);
-            if(row > 0){
-                CointrackingTransaction destinationRecordObject = bittrexToCointrackingMarshaller.marshall(sourceRecordObject);
-
-                transactionAggregatorService.aggregate(destinationRecordObject);
-
-            }
-            row ++;
-        }
-
-        CsvBeanWriter csvBeanWriter = writeDestinationCsv(destinationCsvFileName);
-
-        csvBeanReader.close();
-        csvBeanWriter.close();
-    }
 
     private CsvBeanWriter writeDestinationCsv(String destinationCsvFileName) throws IOException {
         Map<String, CointrackingTransaction> aggregateCointrackingTransactions =
@@ -109,15 +176,15 @@ public class ConsolidatorService {
         CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourcePolonexFileName);
         final String[] sourceHeader = csvHeaderFactory.build(PoloniexTransaction.class);
 
-        BittrexTransaction sourceRecordObject = null;
+        PoloniexTransaction sourceRecordObject = null;
 
         ArrayList<CointrackingTransaction> cointrackingTransactions = new ArrayList<>();
 
         int row = 0;
-        while((sourceRecordObject = csvBeanReader.read(BittrexTransaction.class, sourceHeader) ) != null){
-            System.out.println(sourceRecordObject);
+        while((sourceRecordObject = csvBeanReader.read(PoloniexTransaction.class, sourceHeader) ) != null){
+//            System.out.println(sourceRecordObject);
             if(row > 0){
-                cointrackingTransactions.add(bittrexToCointrackingMarshaller.marshall(sourceRecordObject));
+                cointrackingTransactions.add(poloniexToCointrackingMarshaller.marshall(sourceRecordObject));
             }
             row ++;
         }
@@ -126,27 +193,5 @@ public class ConsolidatorService {
         return cointrackingTransactions;
     }
 
-    public void consolidateBittrex(String sourceCsvFileName, String destinationCsvFileName) throws IOException {
-        CsvBeanReader csvBeanReader = csvBeanReaderFactory.build(sourceCsvFileName);
-        final String[] sourceHeader = csvHeaderFactory.build(BittrexTransaction.class);
-//        final String[] sourceHeader = csvBeanReader.getHeader(true);
 
-        transactionAggregatorService.init();
-
-        BittrexTransaction sourceRecordObject = null;
-
-        int row = 0;
-        while((sourceRecordObject = csvBeanReader.read(BittrexTransaction.class, sourceHeader) ) != null){
-            System.out.println(sourceRecordObject);
-            if(row > 0){
-                CointrackingTransaction destinationRecordObject = bittrexToCointrackingMarshaller.marshall(sourceRecordObject);
-
-                transactionAggregatorService.aggregate(destinationRecordObject);
-
-            }
-            row ++;
-        }
-
-        CsvBeanWriter csvBeanWriter = writeDestinationCsv(destinationCsvFileName);
-    }
 }

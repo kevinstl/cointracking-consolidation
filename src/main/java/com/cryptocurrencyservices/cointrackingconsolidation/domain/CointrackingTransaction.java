@@ -127,11 +127,27 @@ public class CointrackingTransaction {
         return getExchange() + "_"
                 + getBuycur()  + "_"
                 + getSellcur()  + "_"
-//                + getTradedate().substring(0, 10)
-                + getTradedate().substring(0)
-                ;
+                + getTradedate().substring(0); // By millisecond
+//                + getTradedate().substring(0, 10); // By Day
+//                + getTradedate().substring(0, 9);    // By Day Teen Digit
+//                + getTradedate().substring(0, 7);    // By Month
     }
 
+    //    @Override
+//    public String toString() {
+//        return new ToStringBuilder(this)
+//                .append("type", type)
+//                .append("buyAmount", buyAmount)
+//                .append("buyCur", buyCur)
+//                .append("sellAmount", sellAmount)
+//                .append("sellCur", sellCur)
+//                .append("feeAmount", feeAmount)
+//                .append("feeCur", feeCur)
+//                .append("tradeDate", tradeDate)
+//                .append("exchange", exchange)
+//                .append("group", group)
+//                .append("comment", comment).toString();
+//    }
 
 
 }

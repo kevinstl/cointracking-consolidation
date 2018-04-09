@@ -17,11 +17,11 @@ public class BittrexToCointrackingMarshaller {
 
     public static final String BITTREX = "Bittrex";
     public static final String TRADE = "Trade";
-    public static final String BUY = "Buy";
-    public static final String SELL = "Sell";
-    public static final String CURRENCY_PAIR_DELIMITER = "/";
-    public static final SimpleDateFormat BITTREX_SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    public static final SimpleDateFormat COINTRACKING_SIMPLE_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    public static final String BUY = "BUY";
+    public static final String SELL = "SELL";
+    public static final String CURRENCY_PAIR_DELIMITER = "-";
+    public static final SimpleDateFormat BITTREX_SIMPLE_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    public static final SimpleDateFormat COINTRACKING_SIMPLE_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private RoundingMode roundingMode = RoundingMode.HALF_EVEN;
 
@@ -57,12 +57,12 @@ public class BittrexToCointrackingMarshaller {
         cointrackingTransaction.setFeeamount(fee.toString());
         cointrackingTransaction.setFeecur(baseCurrency);
 
-        if(StringUtils.equals(BUY, bittrexTransaction.getType())){
-//            BigDecimal amount = new BigDecimal(bittrexTransaction.getAmount()).setScale(8, roundingMode);
-//            BigDecimal quoteTotalLessFee = new BigDecimal(bittrexTransaction.getQuoteTotalLessFee()).setScale(8, roundingMode);
-
+        if(StringUtils.contains(bittrexTransaction.getType(), BUY)){
             cointrackingTransaction.setBuyamount(bittrexTransaction.getQuantity().replace("-", ""));
-            cointrackingTransaction.setSellamount(bittrexTransaction.getPrice().replace("-", ""));
+
+            BigDecimal price = new BigDecimal(bittrexTransaction.getPrice()).setScale(8, roundingMode);
+            BigDecimal sellAmount = price.add(fee).setScale(8, roundingMode);
+            cointrackingTransaction.setSellamount(sellAmount.toString().replace("-", ""));
 
             cointrackingTransaction.setBuycur(tradeCurrency);
             cointrackingTransaction.setSellcur(baseCurrency);
@@ -73,11 +73,15 @@ public class BittrexToCointrackingMarshaller {
 //            cointrackingTransaction.setFeecur(tradeCurrency);
 
         }
-        else if(StringUtils.equals(SELL, bittrexTransaction.getType())){
+        else if(StringUtils.contains(bittrexTransaction.getType(), SELL)){
 //            BigDecimal total = new BigDecimal(bittrexTransaction.getTotal()).setScale(8, roundingMode);
 //            BigDecimal baseTotalLessFee = new BigDecimal(bittrexTransaction.getBaseTotalLessFee()).setScale(8, roundingMode);
 
-            cointrackingTransaction.setBuyamount(bittrexTransaction.getPrice().replace("-", ""));
+            BigDecimal price = new BigDecimal(bittrexTransaction.getPrice()).setScale(8, roundingMode);
+            BigDecimal buyAmount = price.subtract(fee).setScale(8, roundingMode);
+            cointrackingTransaction.setBuyamount(buyAmount.toString().replace("-", ""));
+
+
             cointrackingTransaction.setSellamount(bittrexTransaction.getQuantity().replace("-", ""));
 
             cointrackingTransaction.setBuycur(baseCurrency);

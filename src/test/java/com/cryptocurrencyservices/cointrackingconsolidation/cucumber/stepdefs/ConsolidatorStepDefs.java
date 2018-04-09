@@ -27,9 +27,9 @@ public class ConsolidatorStepDefs extends StepDefs {
     private String destinationCsvFileDir = null;
     private String destinationCsvFileName = null;
     private String destinationCsvFilePrefix = null;
+    private String destinationCsvFileNameFull = null;
 
     private CointrackingTransaction cointrackingTransaction = new CointrackingTransaction();
-    private String destinationCsvFileNameFull;
 
     @Given("^I have access to the \"([^\"]*)\" Consolidator Service$")
     public void i_have_access_to_the_Consolidator_Service(String exchange) throws Throwable {
@@ -52,7 +52,6 @@ public class ConsolidatorStepDefs extends StepDefs {
     public void i_use_the_Consolidator_Service_to_consoliate(String exchange) throws Throwable {
 
         if(exchange.equals(POLONIEX)) {
-
             consolidatorService.consolidatePoloniex(
                     sourceCsvFileDir + sourceCsvFileName,
                     destinationCsvFileNameFull
@@ -60,20 +59,21 @@ public class ConsolidatorStepDefs extends StepDefs {
         }
         else if(exchange.equals(BITTREX)) {
             consolidatorService.consolidateBittrex(
-                    sourceCsvFileName,
-                    destinationCsvFileName
+                    sourceCsvFileDir + sourceCsvFileName,
+                    destinationCsvFileNameFull
             );
         }
     }
 
     @Then("^I see the \"([^\"]*)\" transactions consolidated into a csv file$")
     public void i_see_the_transactions_consolidated_into_a_csv_file(String exchange) throws Throwable {
-//        File destinationCointrackingTransactionFile = new File(destinationCsvFileName);
-
-//        BufferedReader br = new BufferedReader(new FileReader(destinationCointrackingTransactionFile));
 
         String st = new String(Files.readAllBytes(Paths.get(destinationCsvFileNameFull)));
-        assertThat(st, containsString("EDG"));
+        if(exchange.equals(POLONIEX)) {
+            assertThat(st, containsString("OMNI"));
+        } else if(exchange.equals(BITTREX)) {
+            assertThat(st, containsString("EDG"));
+        }
     }
 
 }
