@@ -45,21 +45,31 @@ public class BitfinexToCointrackingMarshaller {
 
         BigDecimal fee = new BigDecimal(bitfinexTransaction.getFee().replace("-", "")).setScale(8, roundingMode);
         cointrackingTransaction.setFeeamount(fee.toString());
-        cointrackingTransaction.setFeecur(tradeCurrency);
+        String feeCurrency = bitfinexTransaction.getFeeCurrency();
+        cointrackingTransaction.setFeecur(feeCurrency);
+
+        BigDecimal tradeFee = new BigDecimal(0).setScale(8, roundingMode);
+        BigDecimal baseFee = new BigDecimal(0).setScale(8, roundingMode);
+        if(tradeCurrency.equals(feeCurrency)){
+            tradeFee = fee;
+        }
+        else if(baseCurrency.equals(feeCurrency)){
+            baseFee = fee;
+        }
 
         BigDecimal amount = new BigDecimal(bitfinexTransaction.getAmount().replace("-", "")).setScale(8, roundingMode);
         BigDecimal price = new BigDecimal(bitfinexTransaction.getPrice()).setScale(8, roundingMode);
-        BigDecimal tradeAmount = amount.multiply(price).setScale(8, roundingMode);
+        BigDecimal baseAmount = amount.multiply(price).setScale(8, roundingMode);
 
         if(Double.valueOf(bitfinexTransaction.getAmount()) > 0){
-            cointrackingTransaction.setBuyamount(amount.toString());
-            cointrackingTransaction.setSellamount(tradeAmount.add(fee).toString());
+            cointrackingTransaction.setBuyamount(amount.subtract(baseFee).toString());
+            cointrackingTransaction.setSellamount(baseAmount.add(tradeFee).toString());
             cointrackingTransaction.setBuycur(baseCurrency);
             cointrackingTransaction.setSellcur(tradeCurrency);
         }
         else if(Double.valueOf(bitfinexTransaction.getAmount()) < 0){
-            cointrackingTransaction.setBuyamount(tradeAmount.subtract(fee).toString());
-            cointrackingTransaction.setSellamount(amount.toString());
+            cointrackingTransaction.setBuyamount(baseAmount.subtract(tradeFee).toString());
+            cointrackingTransaction.setSellamount(amount.add(baseFee).toString());
             cointrackingTransaction.setBuycur(tradeCurrency);
             cointrackingTransaction.setSellcur(baseCurrency);
         }
