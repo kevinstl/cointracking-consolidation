@@ -33,8 +33,8 @@ public class CointrackingConsolidationConfig {
         destinationCsvFileName = System.getenv("DESTINATION_CSV_FILE_NAME");
 
 //        processPoloniex("POLONIEX");
-//        processBittrex("BITTREX");
-        processBitfinex("BITFINEX");
+        processBittrex("BITTREX");
+//        processBitfinex("BITFINEX");
 
     }
 

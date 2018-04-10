@@ -46,6 +46,15 @@ public class ConsolidatorServiceTest {
     private CsvBeanReader csvBeanReader;
 
     @Mock
+    private CsvBeanReader csvBeanReaderBitfinex;
+
+    @Mock
+    private CsvBeanReader csvBeanReaderPoloniex;
+
+    @Mock
+    private CsvBeanReader csvBeanReaderBittrex;
+
+    @Mock
     private CsvBeanWriter csvBeanWriter;
 
     @Mock
@@ -67,7 +76,9 @@ public class ConsolidatorServiceTest {
     private TransactionAggregatorService transactionAggregatorService;
 
     private String line2;
-    private String sourceFileName;
+    private String sourceFileNameBitfinex = "sourceFileNameBitfinex";
+    private String sourceFileNamePoloniex = "sourceFileNamePoloniex";
+    private String sourceFileNameBittrex = "sourceFileNameBittrex";
     private String destinationCsvFileName;
     private String[] header = {""};
     private String[] cointrackingHeader = {""};
@@ -101,12 +112,111 @@ public class ConsolidatorServiceTest {
     }
 
 
+    @Test
+    public void consolidateBitfinexPoloniexBittrex_consolidatesBitfinexPoloniexBittrex() throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+
+        when(csvHeaderFactory.build(bitfinexSourceClassType)).thenReturn(header);
+        when(csvBeanReaderFactory.build(sourceFileNameBitfinex)).thenReturn(csvBeanReaderBitfinex);
+        when(csvBeanReaderBitfinex.read(bitfinexSourceClassType, header)).thenReturn(bitfinexHeaderRecord, bitfinexTransaction1, bitfinexTransaction2, null);
+        when(bitfinexToCointrackingMarshaller.marshall(bitfinexTransaction1)).thenReturn(cointrackingTransaction1);
+
+
+        when(csvHeaderFactory.build(poloniexSourceClassType)).thenReturn(header);
+        when(csvBeanReaderFactory.build(sourceFileNamePoloniex)).thenReturn(csvBeanReaderPoloniex);
+        when(csvBeanReaderPoloniex.read(poloniexSourceClassType, header)).thenReturn(poloniexHeaderRecord, poloniexTransaction1, poloniexTransaction2, null);
+        when(poloniexToCointrackingMarshaller.marshall(poloniexTransaction2)).thenReturn(cointrackingTransaction2);
+
+
+        when(csvHeaderFactory.build(bittrexSourceClassType)).thenReturn(header);
+        when(csvBeanReaderFactory.build(sourceFileNameBittrex)).thenReturn(csvBeanReaderBittrex);
+        when(csvBeanReaderBittrex.read(bittrexSourceClassType, header)).thenReturn(bittrexHeaderRecord, bittrexTransaction1, bittrexTransaction2, null);
+
+
+        when(transactionAggregatorService.getaggregatedCointrackingTransactions()).thenReturn(aggregateCointrackingTransactions1);
+
+        when(csvHeaderFactory.build(destinationClassType)).thenReturn(cointrackingHeader);
+        when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
+
+
+        classUnderTest.consolidateBitfinexPoloniexBittrex(
+                sourceFileNameBitfinex,
+                sourceFileNamePoloniex,
+                sourceFileNameBittrex,
+                destinationCsvFileName);
+
+
+        verify(csvBeanReaderFactory).build(sourceFileNamePoloniex);
+        verify(csvHeaderFactory).build(poloniexSourceClassType);
+
+        verify(transactionAggregatorService).init();
+
+        verify(csvBeanReaderPoloniex, times(4)).read(poloniexSourceClassType, header);
+
+        verify(transactionAggregatorService).aggregate(cointrackingTransaction1);
+        verify(transactionAggregatorService).aggregate(cointrackingTransaction2);
+
+        verify(poloniexToCointrackingMarshaller, times(0)).marshall(poloniexHeaderRecord);
+        verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction1);
+        verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction2);
+
+        verify(csvBeanWriterFactory).build(destinationCsvFileName);
+        verify(csvHeaderFactory).build(destinationClassType);
+        verify(csvBeanWriter).writeHeader(cointrackingHeader);
+
+        verify(csvBeanWriter, times(1)).write(aggregateCointrackingTransaction1, cointrackingHeader);
+
+        verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction1);
+        verify(poloniexToCointrackingMarshaller).marshall(poloniexTransaction2);
+    }
+
+    @Test
+    public void consolidateBitfinex_consolidatesBitfinex() throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+
+        when(csvHeaderFactory.build(bitfinexSourceClassType)).thenReturn(header);
+        when(csvBeanReaderFactory.build(sourceFileNameBitfinex)).thenReturn(csvBeanReader);
+        when(csvBeanReader.read(bitfinexSourceClassType, header)).thenReturn(bitfinexHeaderRecord, bitfinexTransaction1, bitfinexTransaction2, null);
+
+        when(bitfinexToCointrackingMarshaller.marshall(bitfinexTransaction1)).thenReturn(cointrackingTransaction1);
+        when(bitfinexToCointrackingMarshaller.marshall(bitfinexTransaction2)).thenReturn(cointrackingTransaction2);
+
+        when(transactionAggregatorService.getaggregatedCointrackingTransactions()).thenReturn(aggregateCointrackingTransactions1);
+
+        when(csvHeaderFactory.build(destinationClassType)).thenReturn(cointrackingHeader);
+        when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
+
+
+        classUnderTest.consolidateBitfinex(sourceFileNameBitfinex, destinationCsvFileName);
+
+
+        verify(csvBeanReaderFactory).build(sourceFileNameBitfinex);
+        verify(csvHeaderFactory).build(bitfinexSourceClassType);
+
+        verify(transactionAggregatorService).init();
+
+        verify(csvBeanReader, times(4)).read(bitfinexSourceClassType, header);
+
+        verify(transactionAggregatorService).aggregate(cointrackingTransaction1);
+        verify(transactionAggregatorService).aggregate(cointrackingTransaction2);
+
+        verify(bitfinexToCointrackingMarshaller, times(0)).marshall(bitfinexHeaderRecord);
+        verify(bitfinexToCointrackingMarshaller).marshall(bitfinexTransaction1);
+        verify(bitfinexToCointrackingMarshaller).marshall(bitfinexTransaction2);
+
+        verify(csvBeanWriterFactory).build(destinationCsvFileName);
+        verify(csvHeaderFactory).build(destinationClassType);
+        verify(csvBeanWriter).writeHeader(cointrackingHeader);
+
+        verify(csvBeanWriter, times(1)).write(aggregateCointrackingTransaction1, cointrackingHeader);
+
+        verify(bitfinexToCointrackingMarshaller).marshall(bitfinexTransaction1);
+        verify(bitfinexToCointrackingMarshaller).marshall(bitfinexTransaction2);
+    }
 
     @Test
     public void consolidatePoloniex_consolidatesPoloniex() throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
         when(csvHeaderFactory.build(poloniexSourceClassType)).thenReturn(header);
-        when(csvBeanReaderFactory.build(sourceFileName)).thenReturn(csvBeanReader);
+        when(csvBeanReaderFactory.build(sourceFileNamePoloniex)).thenReturn(csvBeanReader);
         when(csvBeanReader.read(poloniexSourceClassType, header)).thenReturn(poloniexHeaderRecord, poloniexTransaction1, poloniexTransaction2, null);
 
         when(poloniexToCointrackingMarshaller.marshall(poloniexTransaction1)).thenReturn(cointrackingTransaction1);
@@ -118,10 +228,10 @@ public class ConsolidatorServiceTest {
         when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
 
 
-        classUnderTest.consolidatePoloniex(sourceFileName, destinationCsvFileName);
+        classUnderTest.consolidatePoloniex(sourceFileNamePoloniex, destinationCsvFileName);
 
 
-        verify(csvBeanReaderFactory).build(sourceFileName);
+        verify(csvBeanReaderFactory).build(sourceFileNamePoloniex);
         verify(csvHeaderFactory).build(poloniexSourceClassType);
 
         verify(transactionAggregatorService).init();
@@ -150,7 +260,7 @@ public class ConsolidatorServiceTest {
     public void consolidateBittrex_consolidatesBittrex() throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
         when(csvHeaderFactory.build(bittrexSourceClassType)).thenReturn(header);
-        when(csvBeanReaderFactory.build(sourceFileName)).thenReturn(csvBeanReader);
+        when(csvBeanReaderFactory.build(sourceFileNameBittrex)).thenReturn(csvBeanReader);
         when(csvBeanReader.read(bittrexSourceClassType, header)).thenReturn(bittrexHeaderRecord, bittrexTransaction1, bittrexTransaction2, null);
 
         when(bittrexToCointrackingMarshaller.marshall(bittrexTransaction1)).thenReturn(cointrackingTransaction1);
@@ -162,10 +272,10 @@ public class ConsolidatorServiceTest {
         when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
 
 
-        classUnderTest.consolidateBittrex(sourceFileName, destinationCsvFileName);
+        classUnderTest.consolidateBittrex(sourceFileNameBittrex, destinationCsvFileName);
 
 
-        verify(csvBeanReaderFactory).build(sourceFileName);
+        verify(csvBeanReaderFactory).build(sourceFileNameBittrex);
         verify(csvHeaderFactory).build(bittrexSourceClassType);
 
         verify(transactionAggregatorService).init();
@@ -190,65 +300,24 @@ public class ConsolidatorServiceTest {
     }
 
 
-    @Test
-    public void consolidateBitfinex_consolidatesBitfinex() throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
-        when(csvHeaderFactory.build(bitfinexSourceClassType)).thenReturn(header);
-        when(csvBeanReaderFactory.build(sourceFileName)).thenReturn(csvBeanReader);
-        when(csvBeanReader.read(bitfinexSourceClassType, header)).thenReturn(bitfinexHeaderRecord, bitfinexTransaction1, bitfinexTransaction2, null);
-
-        when(bitfinexToCointrackingMarshaller.marshall(bitfinexTransaction1)).thenReturn(cointrackingTransaction1);
-        when(bitfinexToCointrackingMarshaller.marshall(bitfinexTransaction2)).thenReturn(cointrackingTransaction2);
-
-        when(transactionAggregatorService.getaggregatedCointrackingTransactions()).thenReturn(aggregateCointrackingTransactions1);
-
-        when(csvHeaderFactory.build(destinationClassType)).thenReturn(cointrackingHeader);
-        when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
-
-
-        classUnderTest.consolidateBitfinex(sourceFileName, destinationCsvFileName);
-
-
-        verify(csvBeanReaderFactory).build(sourceFileName);
-        verify(csvHeaderFactory).build(bitfinexSourceClassType);
-
-        verify(transactionAggregatorService).init();
-
-        verify(csvBeanReader, times(4)).read(bitfinexSourceClassType, header);
-
-        verify(transactionAggregatorService).aggregate(cointrackingTransaction1);
-        verify(transactionAggregatorService).aggregate(cointrackingTransaction2);
-
-        verify(bitfinexToCointrackingMarshaller, times(0)).marshall(bitfinexHeaderRecord);
-        verify(bitfinexToCointrackingMarshaller).marshall(bitfinexTransaction1);
-        verify(bitfinexToCointrackingMarshaller).marshall(bitfinexTransaction2);
-
-        verify(csvBeanWriterFactory).build(destinationCsvFileName);
-        verify(csvHeaderFactory).build(destinationClassType);
-        verify(csvBeanWriter).writeHeader(cointrackingHeader);
-
-        verify(csvBeanWriter, times(1)).write(aggregateCointrackingTransaction1, cointrackingHeader);
-
-        verify(bitfinexToCointrackingMarshaller).marshall(bitfinexTransaction1);
-        verify(bitfinexToCointrackingMarshaller).marshall(bitfinexTransaction2);
-    }
 
 
     @Test
     public void consolidate_consolidates() throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
         when(csvHeaderFactory.build(poloniexSourceClassType)).thenReturn(header);
-        when(csvBeanReaderFactory.build(sourceFileName)).thenReturn(csvBeanReader);
+        when(csvBeanReaderFactory.build(sourceFileNamePoloniex)).thenReturn(csvBeanReader);
         when(csvBeanReader.read(poloniexSourceClassType, header)).thenReturn(poloniexTransaction1, poloniexTransaction2, null);
 
         when(csvHeaderFactory.build(destinationClassType)).thenReturn(cointrackingHeader);
         when(csvBeanWriterFactory.build(destinationCsvFileName)).thenReturn(csvBeanWriter);
 
 
-        classUnderTest.consolidate(sourceFileName, poloniexSourceClassType, destinationCsvFileName, destinationClassType);
+        classUnderTest.consolidate(sourceFileNamePoloniex, poloniexSourceClassType, destinationCsvFileName, destinationClassType);
 
 
-        verify(csvBeanReaderFactory).build(sourceFileName);
+        verify(csvBeanReaderFactory).build(sourceFileNamePoloniex);
         verify(csvHeaderFactory).build(poloniexSourceClassType);
 
         verify(csvBeanReader, times(3)).read(poloniexSourceClassType, header);
@@ -268,7 +337,7 @@ public class ConsolidatorServiceTest {
     public void consolidateToList_consolidatesToList() throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
 
         when(csvHeaderFactory.build(poloniexSourceClassType)).thenReturn(header);
-        when(csvBeanReaderFactory.build(sourceFileName)).thenReturn(csvBeanReader);
+        when(csvBeanReaderFactory.build(sourceFileNamePoloniex)).thenReturn(csvBeanReader);
         when(csvBeanReader.read(poloniexSourceClassType, header)).thenReturn(poloniexHeaderRecord, poloniexTransaction1, poloniexTransaction2, null);
 
 
@@ -277,14 +346,14 @@ public class ConsolidatorServiceTest {
 
 
         List<CointrackingTransaction> cointrackingTransactions =
-                classUnderTest.consolidateToList(sourceFileName, destinationCsvFileName);
+                classUnderTest.consolidateToList(sourceFileNamePoloniex, destinationCsvFileName);
 
 
         assertNotNull(cointrackingTransactions);
         assertEquals(cointrackingTransaction1, cointrackingTransactions.get(0));
         assertEquals(cointrackingTransaction2, cointrackingTransactions.get(1));
 
-        verify(csvBeanReaderFactory).build(sourceFileName);
+        verify(csvBeanReaderFactory).build(sourceFileNamePoloniex);
         verify(csvHeaderFactory).build(poloniexSourceClassType);
 
         verify(csvBeanReader, times(4)).read(poloniexSourceClassType, header);
