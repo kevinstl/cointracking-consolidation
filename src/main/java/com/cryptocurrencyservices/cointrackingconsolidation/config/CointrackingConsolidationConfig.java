@@ -1,9 +1,7 @@
 package com.cryptocurrencyservices.cointrackingconsolidation.config;
 
 
-import com.cryptocurrencyservices.cointrackingconsolidation.domain.PoloniexTransaction;
 import com.cryptocurrencyservices.cointrackingconsolidation.service.ConsolidatorService;
-import com.cryptocurrencyservices.cointrackingconsolidation.service.CsvReaderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +12,9 @@ import java.io.IOException;
 @ComponentScan(basePackages = "com.cryptocurrencyservices.cointrackingconsolidation")
 public class CointrackingConsolidationConfig {
 
+    public static final String POLONIEX = "POLONIEX";
+    public static final String BITTREX = "BITTREX";
+    public static final String BITFINEX = "BITFINEX";
     @Autowired
     private ConsolidatorService consolidatorService;
 
@@ -32,11 +33,25 @@ public class CointrackingConsolidationConfig {
         destinationCsvFilePrefix = System.getenv("DESTINATION_CSV_FILE_PREFIX");
         destinationCsvFileName = System.getenv("DESTINATION_CSV_FILE_NAME");
 
-//        processPoloniex("POLONIEX");
-        processBittrex("BITTREX");
-//        processBitfinex("BITFINEX");
+//        processBitfinexPoloniexBittrex();
+
+        processBitfinex(BITFINEX);
+//        processPoloniex(POLONIEX);
+//        processBittrex(BITTREX);
 
     }
+
+
+    private void processBitfinexPoloniexBittrex() throws IOException {
+        String destinationCsvFileNameFull = buildDestinationCsvFileNameFull(System.getenv("DESTINATION_CSV_FILE_NAME"));
+        consolidatorService.consolidateBitfinexPoloniexBittrex(
+                sourceCsvFileDir + buildSourceCsvFileName(BITFINEX),
+                sourceCsvFileDir + buildSourceCsvFileName(POLONIEX),
+                sourceCsvFileDir + buildSourceCsvFileName(BITTREX),
+                destinationCsvFileNameFull
+        );
+    }
+
 
     private void processPoloniex(String exchange) throws IOException {
         String sourceCsvFileName = buildSourceCsvFileName(exchange);
